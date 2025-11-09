@@ -24,11 +24,18 @@ import { ManajemenInformasiPage } from "./components/admin/pages/manajemen-infor
 import { LaporanKeuanganPage } from "./components/admin/pages/laporan-keuangan-page";
 import { LaporanBankSampahPage } from "./components/admin/pages/laporan-bank-sampah-page";
 
+// Petugas Components
+import { PetugasLayout } from "./components/petugas/petugas-layout";
+import { InputSetoranPage } from "./components/petugas/pages/input-setoran-page";
+import { RiwayatTransaksiPage } from "./components/petugas/pages/riwayat-transaksi-page";
+
 export type PageType = "dashboard" | "riwayat" | "bank" | "jadwal" | "informasi" | "profil";
+export type PetugasPageType = "input" | "riwayat";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [currentAdminPage, setCurrentAdminPage] = useState<AdminPageType>("dashboard");
+  const [currentPetugasPage, setCurrentPetugasPage] = useState<PetugasPageType>("input");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(null);
 
@@ -42,6 +49,7 @@ export default function App() {
     setUserRole(null);
     setCurrentPage("dashboard");
     setCurrentAdminPage("dashboard");
+    setCurrentPetugasPage("input");
   };
 
   const renderPage = () => {
@@ -88,6 +96,17 @@ export default function App() {
     }
   };
 
+  const renderPetugasPage = () => {
+    switch (currentPetugasPage) {
+      case "input":
+        return <InputSetoranPage />;
+      case "riwayat":
+        return <RiwayatTransaksiPage />;
+      default:
+        return <InputSetoranPage />;
+    }
+  };
+
   // Show login page if not logged in
   if (!isLoggedIn) {
     return (
@@ -120,7 +139,23 @@ export default function App() {
     );
   }
 
-  // Warga/Petugas Panel
+  // Petugas Panel
+  if (userRole === "petugas") {
+    return (
+      <>
+        <PetugasLayout
+          currentPage={currentPetugasPage}
+          onNavigate={setCurrentPetugasPage}
+          onLogout={handleLogout}
+        >
+          {renderPetugasPage()}
+        </PetugasLayout>
+        <Toaster />
+      </>
+    );
+  }
+
+  // Warga Panel
   return (
     <>
       <div className="min-h-screen bg-gray-50">

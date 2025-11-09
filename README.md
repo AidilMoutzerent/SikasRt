@@ -1,7 +1,7 @@
 
-  # User Dashboard
+  # SikasRT
 
-  This is a code bundle for User Dashboard. The original project is available at https://www.figma.com/design/RRCs1YmPIBC4PTxqDQfFVA/User-Dashboard.
+  This is a code bundle for SikasRT. The original project is available at https://www.figma.com/design/RRCs1YmPIBC4PTxqDQfFVA/SikasRT.
 
   ## Running the code
 
