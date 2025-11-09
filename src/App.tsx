@@ -9,14 +9,20 @@ import { JadwalPage } from "./components/pages/jadwal-page";
 import { InformasiRTPage } from "./components/pages/informasi-rt-page";
 import { ProfilPage } from "./components/pages/profil-page";
 import { LoginPage, UserRole } from "./components/pages/login-page";
+import { Toaster } from "./components/ui/sonner";
 
 // Admin Components
 import { AdminHeader } from "./components/admin/admin-header";
 import { AdminSidebar, AdminPageType } from "./components/admin/admin-sidebar";
 import { AdminDashboardPage } from "./components/admin/pages/admin-dashboard-page";
 import { ManajemenWargaPage } from "./components/admin/pages/manajemen-warga-page";
+import { ManajemenPetugasPage } from "./components/admin/pages/manajemen-petugas-page";
 import { ManajemenIuranPage } from "./components/admin/pages/manajemen-iuran-page";
-import { PlaceholderPage } from "./components/admin/pages/placeholder-page";
+import { ManajemenBankSampahPage } from "./components/admin/pages/manajemen-bank-sampah-page";
+import { ManajemenJadwalPage } from "./components/admin/pages/manajemen-jadwal-page";
+import { ManajemenInformasiPage } from "./components/admin/pages/manajemen-informasi-page";
+import { LaporanKeuanganPage } from "./components/admin/pages/laporan-keuangan-page";
+import { LaporanBankSampahPage } from "./components/admin/pages/laporan-bank-sampah-page";
 
 export type PageType = "dashboard" | "riwayat" | "bank" | "jadwal" | "informasi" | "profil";
 
@@ -64,19 +70,19 @@ export default function App() {
       case "warga":
         return <ManajemenWargaPage />;
       case "petugas":
-        return <PlaceholderPage title="Manajemen Petugas" description="Kelola data petugas bank sampah" />;
+        return <ManajemenPetugasPage />;
       case "iuran":
         return <ManajemenIuranPage />;
       case "bank-sampah":
-        return <PlaceholderPage title="Manajemen Bank Sampah" description="Atur harga sampah dan kelola transaksi" />;
+        return <ManajemenBankSampahPage />;
       case "jadwal":
-        return <PlaceholderPage title="Manajemen Jadwal" description="Kelola jadwal kegiatan dan pengangkutan sampah" />;
+        return <ManajemenJadwalPage />;
       case "informasi":
-        return <PlaceholderPage title="Manajemen Informasi" description="Kelola pengumuman dan informasi RT" />;
+        return <ManajemenInformasiPage />;
       case "laporan-keuangan":
-        return <PlaceholderPage title="Laporan Keuangan" description="Lihat dan export laporan keuangan RT" />;
+        return <LaporanKeuanganPage />;
       case "laporan-sampah":
-        return <PlaceholderPage title="Laporan Bank Sampah" description="Lihat dan export laporan bank sampah" />;
+        return <LaporanBankSampahPage />;
       default:
         return <AdminDashboardPage />;
     }
@@ -84,48 +90,59 @@ export default function App() {
 
   // Show login page if not logged in
   if (!isLoggedIn) {
-    return <LoginPage onLogin={handleLogin} />;
+    return (
+      <>
+        <LoginPage onLogin={handleLogin} />
+        <Toaster />
+      </>
+    );
   }
 
   // Admin Panel
   if (userRole === "admin") {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <AdminHeader onLogout={handleLogout} />
-        
-        <div className="flex">
-          <AdminSidebar currentPage={currentAdminPage} onPageChange={setCurrentAdminPage} />
+      <>
+        <div className="min-h-screen bg-gray-50">
+          <AdminHeader onLogout={handleLogout} />
           
-          <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto">
-              {renderAdminPage()}
-            </div>
-          </main>
+          <div className="flex">
+            <AdminSidebar currentPage={currentAdminPage} onPageChange={setCurrentAdminPage} />
+            
+            <main className="flex-1 p-4 md:p-6 lg:p-8">
+              <div className="max-w-7xl mx-auto">
+                {renderAdminPage()}
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
+        <Toaster />
+      </>
     );
   }
 
   // Warga/Petugas Panel
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <Header onLogout={handleLogout} />
-      
-      <div className="flex">
-        {/* Sidebar - Hidden on mobile, shown on desktop */}
-        <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+    <>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <Header onLogout={handleLogout} />
         
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
-          <div className="max-w-6xl mx-auto">
-            {renderPage()}
-          </div>
-        </main>
+        <div className="flex">
+          {/* Sidebar - Hidden on mobile, shown on desktop */}
+          <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+          
+          {/* Main Content */}
+          <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
+            <div className="max-w-6xl mx-auto">
+              {renderPage()}
+            </div>
+          </main>
+        </div>
+        
+        {/* Mobile Bottom Navigation */}
+        <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
       </div>
-      
-      {/* Mobile Bottom Navigation */}
-      <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
-    </div>
+      <Toaster />
+    </>
   );
 }
