@@ -1,7 +1,7 @@
 import { Coins, Recycle, History, ArrowRight, Calendar, MapPin, Package } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -99,6 +99,11 @@ export function BankSampahCard() {
             <DialogTitle>
               {setorStep === "form" ? "Setor Sampah" : "Penjemputan Dijadwalkan!"}
             </DialogTitle>
+            <DialogDescription>
+              {setorStep === "form" 
+                ? "Isi formulir untuk menjadwalkan penjemputan sampah" 
+                : "Penjemputan sampah Anda telah berhasil dijadwalkan"}
+            </DialogDescription>
           </DialogHeader>
 
           {setorStep === "form" && (
@@ -207,6 +212,9 @@ export function BankSampahCard() {
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Riwayat Transaksi</DialogTitle>
+            <DialogDescription>
+              Lihat semua transaksi bank sampah Anda
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">

@@ -4,23 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
+import logoSikas from "figma:asset/b7558ce2490bcde3a0e06dac40727e86e2d7742c.png";
 
 interface AdminHeaderProps {
   onLogout?: () => void;
@@ -41,17 +25,13 @@ export function AdminHeader({ onLogout }: AdminHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
       <div className="flex items-center justify-between px-4 py-3 md:px-6 gap-4">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
+          <img src={logoSikas} alt="SIKAS RT" className="w-10 h-10 object-contain" />
           <div className="hidden sm:block">
-            <h2 className="text-gray-900">Admin Panel RT 05</h2>
+            <h2 className="text-gray-900">Admin SIKAS RT 05</h2>
             <p className="text-sm text-gray-600">Sistem Manajemen</p>
           </div>
         </div>

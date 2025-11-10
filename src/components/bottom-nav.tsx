@@ -16,7 +16,7 @@ export function BottomNav({ currentPage, onPageChange }: BottomNavProps) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 md:hidden z-50">
       <div className="grid grid-cols-5 gap-1">
         {menuItems.map((item) => {
           const Icon = item.icon;

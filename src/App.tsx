@@ -121,17 +121,26 @@ export default function App() {
   if (userRole === "admin") {
     return (
       <>
-        <div className="min-h-screen bg-gray-50">
-          <AdminHeader onLogout={handleLogout} />
-          
-          <div className="flex">
-            <AdminSidebar currentPage={currentAdminPage} onPageChange={setCurrentAdminPage} />
+        <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+          {/* Animated background shapes for Admin */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-40 -left-40 w-80 h-80 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-40 left-20 w-80 h-80 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+          </div>
+
+          <div className="relative z-10">
+            <AdminHeader onLogout={handleLogout} />
             
-            <main className="flex-1 p-4 md:p-6 lg:p-8">
-              <div className="max-w-7xl mx-auto">
-                {renderAdminPage()}
-              </div>
-            </main>
+            <div className="flex">
+              <AdminSidebar currentPage={currentAdminPage} onPageChange={setCurrentAdminPage} />
+              
+              <main className="flex-1 p-4 md:p-6 lg:p-8">
+                <div className="max-w-7xl mx-auto">
+                  {renderAdminPage()}
+                </div>
+              </main>
+            </div>
           </div>
         </div>
         <Toaster />
@@ -158,24 +167,34 @@ export default function App() {
   // Warga Panel
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <Header onLogout={handleLogout} />
-        
-        <div className="flex">
-          {/* Sidebar - Hidden on mobile, shown on desktop */}
-          <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
-          
-          {/* Main Content */}
-          <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
-            <div className="max-w-6xl mx-auto">
-              {renderPage()}
-            </div>
-          </main>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        {/* Animated background shapes for Warga */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute -bottom-40 left-20 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+          <div className="absolute top-1/2 right-1/4 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-3000"></div>
         </div>
-        
-        {/* Mobile Bottom Navigation */}
-        <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
+
+        <div className="relative z-10">
+          {/* Header */}
+          <Header onLogout={handleLogout} />
+          
+          <div className="flex">
+            {/* Sidebar - Hidden on mobile, shown on desktop */}
+            <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+            
+            {/* Main Content */}
+            <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
+              <div className="max-w-6xl mx-auto">
+                {renderPage()}
+              </div>
+            </main>
+          </div>
+          
+          {/* Mobile Bottom Navigation */}
+          <BottomNav currentPage={currentPage} onPageChange={setCurrentPage} />
+        </div>
       </div>
       <Toaster />
     </>

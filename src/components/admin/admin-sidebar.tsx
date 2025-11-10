@@ -65,7 +65,7 @@ export function AdminSidebar({ currentPage, onPageChange }: AdminSidebarProps) {
   ];
 
   return (
-    <aside className="hidden md:flex md:w-64 lg:w-72 bg-white border-r border-gray-200 flex-col">
+    <aside className="hidden md:flex md:w-64 lg:w-72 bg-white/80 backdrop-blur-md border-r border-gray-200 flex-col">
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {menuSections.map((section, sectionIdx) => (
           <div key={sectionIdx}>

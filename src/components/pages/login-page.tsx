@@ -4,6 +4,10 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import logoSikas from "figma:asset/b7558ce2490bcde3a0e06dac40727e86e2d7742c.png";
+import { toast } from "react-toastify";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
+import { UserPlus } from "lucide-react";
 
 export type UserRole = "admin" | "warga" | "petugas" | null;
 
@@ -14,9 +18,21 @@ interface LoginPageProps {
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+  });
+  const [registerData, setRegisterData] = useState({
+    namaLengkap: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    nomorRumah: "",
+    blok: "",
+    noTelepon: "",
   });
 
   const roles = [
@@ -63,180 +79,472 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
   };
 
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (registerData.password !== registerData.confirmPassword) {
+      toast.error("Password dan konfirmasi password tidak cocok!");
+      return;
+    }
+
+    if (registerData.password.length < 6) {
+      toast.error("Password minimal 6 karakter!");
+      return;
+    }
+
+    if (selectedRole === "warga" && (!registerData.nomorRumah || !registerData.blok)) {
+      toast.error("Nomor rumah dan blok wajib diisi untuk warga!");
+      return;
+    }
+
+    // Simulate registration success
+    toast.success(`Registrasi berhasil! Silakan login dengan akun ${registerData.username}`);
+    
+    // Reset and switch to login mode
+    setIsRegisterMode(false);
+    setFormData({
+      username: registerData.username,
+      password: "",
+    });
+    setRegisterData({
+      namaLengkap: "",
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      nomorRumah: "",
+      blok: "",
+      noTelepon: "",
+    });
+  };
+
   const handleBack = () => {
     setSelectedRole(null);
+    setIsRegisterMode(false);
+    setFormData({ username: "", password: "" });
+    setRegisterData({
+      namaLengkap: "",
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      nomorRumah: "",
+      blok: "",
+      noTelepon: "",
+    });
+  };
+
+  const toggleMode = () => {
+    setIsRegisterMode(!isRegisterMode);
     setFormData({ username: "", password: "" });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
-        {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-2xl mb-4 shadow-lg">
-            <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-          </div>
-          <h1 className="text-gray-900 mb-2">Sistem Informasi RT</h1>
-          <p className="text-gray-600">Selamat datang! Silakan login untuk melanjutkan</p>
-        </div>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500">
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large gradient orbs */}
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-40 left-20 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-3000"></div>
+        
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        
+        {/* Floating shapes */}
+        <div className="absolute top-20 left-10 w-16 h-16 border-4 border-white/20 rounded-lg rotate-45 animate-float"></div>
+        <div className="absolute top-40 right-20 w-12 h-12 border-4 border-white/20 rounded-full animate-float animation-delay-1000"></div>
+        <div className="absolute bottom-40 left-1/4 w-20 h-20 border-4 border-white/20 rounded-lg rotate-12 animate-float animation-delay-2000"></div>
+        <div className="absolute bottom-20 right-1/3 w-14 h-14 border-4 border-white/20 rounded-full animate-float animation-delay-3000"></div>
+      </div>
 
-        {/* Role Selection */}
-        {!selectedRole && (
-          <div className="space-y-4">
-            <h2 className="text-center text-gray-900 mb-6">Pilih Role Login</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {roles.map((role) => {
-                const Icon = role.icon;
-                return (
-                  <Card
-                    key={role.id}
-                    className={`cursor-pointer transition-all duration-200 hover:shadow-lg border-2 border-transparent ${role.hoverBg}`}
-                    onClick={() => setSelectedRole(role.id)}
-                  >
-                    <CardContent className="p-6 text-center">
-                      <div className={`inline-flex items-center justify-center w-16 h-16 ${role.bgColor} rounded-xl mb-4`}>
-                        <Icon className={`w-8 h-8 ${role.iconColor}`} />
-                      </div>
-                      <h3 className="text-gray-900 mb-2">{role.title}</h3>
-                      <p className="text-sm text-gray-600 mb-4">{role.description}</p>
-                      <Button className={`w-full bg-${role.color}-600 hover:bg-${role.color}-700`}>
-                        Pilih
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+      {/* Glass overlay */}
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl">
+          {/* Logo and Title */}
+          <div className="text-center mb-8">
+            <div className="inline-block p-4 bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl mb-4 border border-white/20">
+              <img 
+                src={logoSikas} 
+                alt="SIKAS RT" 
+                className="w-24 h-24 object-contain"
+              />
             </div>
+            <h1 className="text-white mb-2 drop-shadow-lg">Sistem Informasi RT</h1>
+            <p className="text-white/90 drop-shadow-md">Selamat datang! Silakan login untuk melanjutkan</p>
           </div>
-        )}
 
-        {/* Login Form */}
-        {selectedRole && (
-          <Card className="max-w-md mx-auto border-2">
-            <CardContent className="p-8">
-              {/* Selected Role Badge */}
-              <div className="text-center mb-6">
+          {/* Role Selection */}
+          {!selectedRole && (
+            <div className="space-y-4">
+              <h2 className="text-center text-white drop-shadow-md mb-6">Pilih Role Login</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {roles.map((role) => {
-                  if (role.id === selectedRole) {
-                    const Icon = role.icon;
-                    return (
-                      <div key={role.id}>
-                        <div className={`inline-flex items-center justify-center w-16 h-16 ${role.bgColor} rounded-xl mb-3`}>
+                  const Icon = role.icon;
+                  return (
+                    <Card
+                      key={role.id}
+                      className={`cursor-pointer transition-all duration-200 hover:shadow-lg border-2 border-transparent ${role.hoverBg}`}
+                      onClick={() => setSelectedRole(role.id)}
+                    >
+                      <CardContent className="p-6 text-center">
+                        <div className={`inline-flex items-center justify-center w-16 h-16 ${role.bgColor} rounded-xl mb-4`}>
                           <Icon className={`w-8 h-8 ${role.iconColor}`} />
                         </div>
-                        <h3 className="text-gray-900 mb-1">Login sebagai {role.title}</h3>
-                        <p className="text-sm text-gray-600">{role.description}</p>
-                      </div>
-                    );
-                  }
-                  return null;
+                        <h3 className="text-gray-900 mb-2">{role.title}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{role.description}</p>
+                        <Button 
+                          className={
+                            role.id === "warga" 
+                              ? "w-full bg-blue-600 hover:bg-blue-700" 
+                              : role.id === "admin"
+                              ? "w-full bg-green-600 hover:bg-green-700"
+                              : "w-full bg-purple-600 hover:bg-purple-700"
+                          }
+                        >
+                          Pilih
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
                 })}
               </div>
+            </div>
+          )}
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username / Email</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Masukkan username atau email"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    required
-                    className="h-12"
-                  />
+          {/* Login Form */}
+          {selectedRole && (
+            <Card className="max-w-md mx-auto border-2">
+              <CardContent className="p-8">
+                {/* Selected Role Badge */}
+                <div className="text-center mb-6">
+                  {roles.map((role) => {
+                    if (role.id === selectedRole) {
+                      const Icon = role.icon;
+                      return (
+                        <div key={role.id}>
+                          <div className={`inline-flex items-center justify-center w-16 h-16 ${role.bgColor} rounded-xl mb-3`}>
+                            <Icon className={`w-8 h-8 ${role.iconColor}`} />
+                          </div>
+                          <h3 className="text-gray-900 mb-1">
+                            {isRegisterMode ? "Daftar" : "Login"} sebagai {role.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">{role.description}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Masukkan password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      required
-                      className="h-12 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
+                {/* Login Form */}
+                {!isRegisterMode && (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username / Email</Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        placeholder="Masukkan username atau email"
+                        value={formData.username}
+                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Masukkan password"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          required
+                          className="h-12 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" className="rounded border-gray-300" />
+                        <span className="text-gray-600">Ingat saya</span>
+                      </label>
+                      <a href="#" className="text-blue-600 hover:text-blue-700">
+                        Lupa password?
+                      </a>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      <Button
+                        type="submit"
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700"
+                      >
+                        <LogIn className="w-5 h-5 mr-2" />
+                        Login
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full h-12"
+                        onClick={handleBack}
+                      >
+                        Kembali
+                      </Button>
+                    </div>
+
+                    {/* Register Link - Only for Warga and Admin */}
+                    {(selectedRole === "warga" || selectedRole === "admin") && (
+                      <div className="text-center pt-4 border-t border-gray-200">
+                        <p className="text-sm text-gray-600">
+                          Belum punya akun?{" "}
+                          <button
+                            type="button"
+                            onClick={toggleMode}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            Daftar sekarang
+                          </button>
+                        </p>
+                      </div>
+                    )}
+                  </form>
+                )}
+
+                {/* Register Form */}
+                {isRegisterMode && (
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="namaLengkap">Nama Lengkap</Label>
+                      <Input
+                        id="namaLengkap"
+                        type="text"
+                        placeholder="Masukkan nama lengkap"
+                        value={registerData.namaLengkap}
+                        onChange={(e) => setRegisterData({ ...registerData, namaLengkap: e.target.value })}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="contoh@email.com"
+                        value={registerData.email}
+                        onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+
+                    {/* Warga specific fields */}
+                    {selectedRole === "warga" && (
+                      <>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="blok">Blok</Label>
+                            <Select
+                              value={registerData.blok}
+                              onValueChange={(value) => setRegisterData({ ...registerData, blok: value })}
+                              required
+                            >
+                              <SelectTrigger className="h-12">
+                                <SelectValue placeholder="Pilih blok" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="A">Blok A</SelectItem>
+                                <SelectItem value="B">Blok B</SelectItem>
+                                <SelectItem value="C">Blok C</SelectItem>
+                                <SelectItem value="D">Blok D</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="nomorRumah">No. Rumah</Label>
+                            <Input
+                              id="nomorRumah"
+                              type="text"
+                              placeholder="01"
+                              value={registerData.nomorRumah}
+                              onChange={(e) => setRegisterData({ ...registerData, nomorRumah: e.target.value })}
+                              required
+                              className="h-12"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="noTelepon">No. Telepon</Label>
+                          <Input
+                            id="noTelepon"
+                            type="tel"
+                            placeholder="08xxxxxxxxxx"
+                            value={registerData.noTelepon}
+                            onChange={(e) => setRegisterData({ ...registerData, noTelepon: e.target.value })}
+                            required
+                            className="h-12"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-username">Username</Label>
+                      <Input
+                        id="reg-username"
+                        type="text"
+                        placeholder="Pilih username"
+                        value={registerData.username}
+                        onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-password">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="reg-password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Minimal 6 karakter"
+                          value={registerData.password}
+                          onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                          required
+                          className="h-12 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Ulangi password"
+                          value={registerData.confirmPassword}
+                          onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                          required
+                          className="h-12 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      <Button
+                        type="submit"
+                        className="w-full h-12 bg-green-600 hover:bg-green-700"
+                      >
+                        <UserPlus className="w-5 h-5 mr-2" />
+                        Daftar
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full h-12"
+                        onClick={handleBack}
+                      >
+                        Kembali
+                      </Button>
+                    </div>
+
+                    {/* Login Link */}
+                    <div className="text-center pt-4 border-t border-gray-200">
+                      <p className="text-sm text-gray-600">
+                        Sudah punya akun?{" "}
+                        <button
+                          type="button"
+                          onClick={toggleMode}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          Login sekarang
+                        </button>
+                      </p>
+                    </div>
+                  </form>
+                )}
+
+                {/* Demo Credentials - Only show in login mode */}
+                {!isRegisterMode && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 mb-2">Demo Credentials:</p>
+                    <div className="space-y-1 text-xs text-gray-700">
+                      {selectedRole === "warga" && (
+                        <>
+                          <p>Username: <span className="font-medium">warga123</span></p>
+                          <p>Password: <span className="font-medium">password</span></p>
+                        </>
                       )}
-                    </button>
+                      {selectedRole === "admin" && (
+                        <>
+                          <p>Username: <span className="font-medium">admin</span></p>
+                          <p>Password: <span className="font-medium">admin123</span></p>
+                        </>
+                      )}
+                      {selectedRole === "petugas" && (
+                        <>
+                          <p>Username: <span className="font-medium">petugas</span></p>
+                          <p>Password: <span className="font-medium">petugas123</span></p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" className="rounded border-gray-300" />
-                    <span className="text-gray-600">Ingat saya</span>
-                  </label>
-                  <a href="#" className="text-blue-600 hover:text-blue-700">
-                    Lupa password?
-                  </a>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  <Button
-                    type="submit"
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700"
-                  >
-                    <LogIn className="w-5 h-5 mr-2" />
-                    Login
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-12"
-                    onClick={handleBack}
-                  >
-                    Kembali
-                  </Button>
-                </div>
-              </form>
-
-              {/* Demo Credentials */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-600 mb-2">Demo Credentials:</p>
-                <div className="space-y-1 text-xs text-gray-700">
-                  {selectedRole === "warga" && (
-                    <>
-                      <p>Username: <span className="font-medium">warga123</span></p>
-                      <p>Password: <span className="font-medium">password</span></p>
-                    </>
-                  )}
-                  {selectedRole === "admin" && (
-                    <>
-                      <p>Username: <span className="font-medium">admin</span></p>
-                      <p>Password: <span className="font-medium">admin123</span></p>
-                    </>
-                  )}
-                  {selectedRole === "petugas" && (
-                    <>
-                      <p>Username: <span className="font-medium">petugas</span></p>
-                      <p>Password: <span className="font-medium">petugas123</span></p>
-                    </>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Footer */}
-        <div className="text-center mt-8 text-sm text-gray-600">
-          <p>© 2025 Sistem Informasi RT. All rights reserved.</p>
+          {/* Footer */}
+          <div className="text-center mt-8 text-sm text-white/80 drop-shadow">
+            <p>© 2025 Sistem Informasi RT. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </div>

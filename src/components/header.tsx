@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
+import logoSikas from "figma:asset/b7558ce2490bcde3a0e06dac40727e86e2d7742c.png";
 
 interface HeaderProps {
   onLogout?: () => void;
@@ -39,17 +40,13 @@ export function Header({ onLogout }: HeaderProps) {
     }
   };
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
       <div className="flex items-center justify-between px-4 py-3 md:px-6">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-          </div>
+          <img src={logoSikas} alt="SIKAS RT" className="w-10 h-10 object-contain" />
           <div className="hidden sm:block">
-            <h2 className="text-gray-900">Sistem RT</h2>
+            <h2 className="text-gray-900">SIKAS RT</h2>
             <p className="text-sm text-gray-600">RT 05 / RW 02</p>
           </div>
         </div>
