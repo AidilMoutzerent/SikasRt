@@ -404,17 +404,17 @@ export function InputSetoranPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Konfirmasi Transaksi</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>Pastikan data yang diinput sudah benar:</p>
-              {selectedWarga && (
-                <div className="bg-gray-50 rounded-lg p-3 mt-2 space-y-1 text-gray-900">
-                  <p>Warga: <strong>{selectedWarga.nama}</strong></p>
-                  <p>Total Berat: <strong>{totals.totalBerat.toFixed(1)} kg</strong></p>
-                  <p>Total Setoran: <strong>Rp {totals.totalNilai.toLocaleString("id-ID")}</strong></p>
-                  <p>Saldo Baru: <strong>Rp {(selectedWarga.saldo + totals.totalNilai).toLocaleString("id-ID")}</strong></p>
-                </div>
-              )}
+            <AlertDialogDescription>
+              Pastikan data yang diinput sudah benar:
             </AlertDialogDescription>
+            {selectedWarga && (
+              <div className="bg-gray-50 rounded-lg p-3 space-y-1 text-sm text-gray-900">
+                <div>Warga: <strong>{selectedWarga.nama}</strong></div>
+                <div>Total Berat: <strong>{totals.totalBerat.toFixed(1)} kg</strong></div>
+                <div>Total Setoran: <strong>Rp {totals.totalNilai.toLocaleString("id-ID")}</strong></div>
+                <div>Saldo Baru: <strong>Rp {(selectedWarga.saldo + totals.totalNilai).toLocaleString("id-ID")}</strong></div>
+              </div>
+            )}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>

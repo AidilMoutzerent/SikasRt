@@ -141,41 +141,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Large gradient orbs */}
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-40 left-20 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-3000"></div>
-        
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        
-        {/* Floating shapes */}
-        <div className="absolute top-20 left-10 w-16 h-16 border-4 border-white/20 rounded-lg rotate-45 animate-float"></div>
-        <div className="absolute top-40 right-20 w-12 h-12 border-4 border-white/20 rounded-full animate-float animation-delay-1000"></div>
-        <div className="absolute bottom-40 left-1/4 w-20 h-20 border-4 border-white/20 rounded-lg rotate-12 animate-float animation-delay-2000"></div>
-        <div className="absolute bottom-20 right-1/3 w-14 h-14 border-4 border-white/20 rounded-full animate-float animation-delay-3000"></div>
-      </div>
-
-      {/* Glass overlay */}
-      <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           {/* Logo and Title */}
           <div className="text-center mb-8">
-            <div className="inline-block p-4 bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl mb-4 border border-white/20">
+            <div className="inline-block p-4 bg-white rounded-3xl shadow-lg mb-4 border border-gray-200">
               <img 
                 src={logoSikas} 
                 alt="SIKAS RT" 
                 className="w-24 h-24 object-contain"
               />
             </div>
-            <h1 className="text-white mb-2 drop-shadow-lg">Sistem Informasi RT</h1>
-            <p className="text-white/90 drop-shadow-md">Selamat datang! Silakan login untuk melanjutkan</p>
+            <h1 className="text-gray-900 mb-2">Sistem Informasi RT</h1>
+            <p className="text-gray-600">Selamat datang! Silakan login untuk melanjutkan</p>
           </div>
 
           {/* Role Selection */}

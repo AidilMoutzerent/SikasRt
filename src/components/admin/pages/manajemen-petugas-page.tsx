@@ -1,28 +1,10 @@
 import { useState } from "react";
-import { Search, UserPlus, Edit, Trash2, Eye, Filter, Download, Phone, MoreVertical, Shield, Recycle } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, UserPlus, Phone, Mail, Shield, MoreVertical } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
 import { Badge } from "../../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../ui/dialog";
-import { Label } from "../../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
-import { toast } from "sonner@2.0.3";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,17 +15,35 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
+import { Label } from "../../ui/label";
+import { Input } from "../../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { toast } from "sonner@2.0.3";
 
 interface Petugas {
   id: number;
   nama: string;
-  nik: string;
-  jabatan: string;
-  telp: string;
   email: string;
-  status: string;
-  mulaiTugas: string;
+  telp: string;
+  jabatan: string;
+  status: "Aktif" | "Non-Aktif";
   avatar: string;
+  totalTransaksi?: number;
+  bergabung: string;
 }
 
 export function ManajemenPetugasPage() {
@@ -52,79 +52,54 @@ export function ManajemenPetugasPage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedPetugas, setSelectedPetugas] = useState<Petugas | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterJabatan, setFilterJabatan] = useState("all");
-
-  // Form state
-  const [formData, setFormData] = useState({
-    nama: "",
-    nik: "",
-    jabatan: "",
-    telp: "",
-    email: "",
-    alamat: "",
-    mulaiTugas: "",
-    gaji: "",
-    status: "aktif"
-  });
 
   const [petugasData, setPetugasData] = useState<Petugas[]>([
     {
       id: 1,
       nama: "Joko Susanto",
-      nik: "3201234567891240",
+      email: "joko@banksampah.rt05.id",
+      telp: "0812-3456-7890",
       jabatan: "Petugas Bank Sampah",
-      telp: "0812-1111-2222",
-      email: "joko@email.com",
       status: "Aktif",
-      mulaiTugas: "2023-01-15",
-      avatar: "Joko"
+      avatar: "Joko",
+      totalTransaksi: 145,
+      bergabung: "2023-01-15"
     },
     {
       id: 2,
       nama: "Rina Kusuma",
-      nik: "3201234567891241",
+      email: "rina@banksampah.rt05.id",
+      telp: "0813-4567-8901",
       jabatan: "Petugas Bank Sampah",
-      telp: "0813-2222-3333",
-      email: "rina@email.com",
       status: "Aktif",
-      mulaiTugas: "2023-03-20",
-      avatar: "Rina"
+      avatar: "Rina",
+      totalTransaksi: 132,
+      bergabung: "2023-03-20"
     },
     {
       id: 3,
-      nama: "Budi Hartono",
-      nik: "3201234567891242",
-      jabatan: "Keamanan",
-      telp: "0814-3333-4444",
-      email: "budi.h@email.com",
+      nama: "Ahmad Rizki",
+      email: "ahmad@banksampah.rt05.id",
+      telp: "0814-5678-9012",
+      jabatan: "Petugas Bank Sampah",
       status: "Aktif",
-      mulaiTugas: "2022-06-10",
-      avatar: "BudiH"
-    },
-    {
-      id: 4,
-      nama: "Taufik Rahman",
-      nik: "3201234567891243",
-      jabatan: "Keamanan",
-      telp: "0815-4444-5555",
-      email: "taufik@email.com",
-      status: "Aktif",
-      mulaiTugas: "2022-08-05",
-      avatar: "Taufik"
-    },
-    {
-      id: 5,
-      nama: "Sari Dewi",
-      nik: "3201234567891244",
-      jabatan: "Kebersihan",
-      telp: "0816-5555-6666",
-      email: "sari@email.com",
-      status: "Cuti",
-      mulaiTugas: "2023-02-15",
-      avatar: "Sari"
+      avatar: "Ahmad",
+      totalTransaksi: 98,
+      bergabung: "2023-06-10"
     },
   ]);
+
+  const [formData, setFormData] = useState({
+    nama: "",
+    email: "",
+    telp: "",
+    jabatan: "Petugas Bank Sampah",
+    status: "Aktif" as const,
+    password: ""
+  });
+
+  const petugasAktif = petugasData.filter(p => p.status === "Aktif");
+  const totalTransaksi = petugasData.reduce((sum, p) => sum + (p.totalTransaksi || 0), 0);
 
   const handleViewDetail = (petugas: Petugas) => {
     setSelectedPetugas(petugas);
@@ -135,43 +110,49 @@ export function ManajemenPetugasPage() {
     setSelectedPetugas(petugas);
     setFormData({
       nama: petugas.nama,
-      nik: petugas.nik,
-      jabatan: petugas.jabatan,
-      telp: petugas.telp,
       email: petugas.email,
-      alamat: "",
-      mulaiTugas: petugas.mulaiTugas,
-      gaji: "",
-      status: petugas.status.toLowerCase()
+      telp: petugas.telp,
+      jabatan: petugas.jabatan,
+      status: petugas.status,
+      password: ""
     });
     setShowEditModal(true);
   };
 
-  const handleDeleteClick = (petugas: Petugas) => {
+  const handleDelete = (petugas: Petugas) => {
     setSelectedPetugas(petugas);
     setShowDeleteDialog(true);
   };
 
+  const confirmDelete = () => {
+    if (selectedPetugas) {
+      setPetugasData(petugasData.filter(p => p.id !== selectedPetugas.id));
+      toast.success(`Petugas ${selectedPetugas.nama} berhasil dihapus!`);
+      setShowDeleteDialog(false);
+      setSelectedPetugas(null);
+    }
+  };
+
   const handleAddPetugas = () => {
-    if (!formData.nama || !formData.nik || !formData.jabatan) {
-      toast.error("Mohon lengkapi data yang diperlukan!");
+    if (!formData.nama || !formData.email || !formData.telp || !formData.password) {
+      toast.error("Mohon lengkapi semua field!");
       return;
     }
 
     const newPetugas: Petugas = {
-      id: petugasData.length + 1,
+      id: Math.max(...petugasData.map(p => p.id)) + 1,
       nama: formData.nama,
-      nik: formData.nik,
-      jabatan: formData.jabatan,
-      telp: formData.telp,
       email: formData.email,
-      status: formData.status === "aktif" ? "Aktif" : "Cuti",
-      mulaiTugas: formData.mulaiTugas,
-      avatar: formData.nama
+      telp: formData.telp,
+      jabatan: formData.jabatan,
+      status: formData.status,
+      avatar: formData.nama,
+      totalTransaksi: 0,
+      bergabung: new Date().toISOString().split('T')[0]
     };
 
     setPetugasData([...petugasData, newPetugas]);
-    toast.success(`Petugas ${formData.nama} berhasil ditambahkan!`);
+    toast.success("Petugas berhasil ditambahkan!");
     setShowAddModal(false);
     resetForm();
   };
@@ -179,70 +160,42 @@ export function ManajemenPetugasPage() {
   const handleUpdatePetugas = () => {
     if (!selectedPetugas) return;
 
+    if (!formData.nama || !formData.email || !formData.telp) {
+      toast.error("Mohon lengkapi semua field!");
+      return;
+    }
+
     const updatedData = petugasData.map(p =>
       p.id === selectedPetugas.id
         ? {
             ...p,
             nama: formData.nama,
-            nik: formData.nik,
-            jabatan: formData.jabatan,
-            telp: formData.telp,
             email: formData.email,
-            status: formData.status === "aktif" ? "Aktif" : "Cuti",
-            mulaiTugas: formData.mulaiTugas
+            telp: formData.telp,
+            jabatan: formData.jabatan,
+            status: formData.status,
+            avatar: formData.nama
           }
         : p
     );
 
     setPetugasData(updatedData);
-    toast.success(`Data ${formData.nama} berhasil diperbarui!`);
+    toast.success("Data petugas berhasil diupdate!");
     setShowEditModal(false);
-    resetForm();
-  };
-
-  const handleDelete = () => {
-    if (!selectedPetugas) return;
-
-    const updatedData = petugasData.filter(p => p.id !== selectedPetugas.id);
-    setPetugasData(updatedData);
-    toast.success(`Petugas ${selectedPetugas.nama} berhasil dihapus!`);
-    setShowDeleteDialog(false);
     setSelectedPetugas(null);
-  };
-
-  const handleHubungi = (petugas: Petugas) => {
-    window.open(`https://wa.me/${petugas.telp.replace(/[^0-9]/g, '')}`, '_blank');
-    toast.success(`Membuka WhatsApp untuk ${petugas.nama}`);
-  };
-
-  const handleExport = () => {
-    toast.success("Data petugas berhasil diexport!");
-    // Implement actual export logic here
+    resetForm();
   };
 
   const resetForm = () => {
     setFormData({
       nama: "",
-      nik: "",
-      jabatan: "",
-      telp: "",
       email: "",
-      alamat: "",
-      mulaiTugas: "",
-      gaji: "",
-      status: "aktif"
+      telp: "",
+      jabatan: "Petugas Bank Sampah",
+      status: "Aktif",
+      password: ""
     });
-    setSelectedPetugas(null);
   };
-
-  // Filter data
-  const filteredData = petugasData.filter(petugas => {
-    const matchSearch = petugas.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                       petugas.nik.includes(searchQuery) ||
-                       petugas.jabatan.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchFilter = filterJabatan === "all" || petugas.jabatan === filterJabatan;
-    return matchSearch && matchFilter;
-  });
 
   return (
     <>
@@ -251,11 +204,14 @@ export function ManajemenPetugasPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-gray-900 mb-1">Manajemen Petugas</h1>
-            <p className="text-gray-600">Kelola data petugas RT 05 / RW 02</p>
+            <p className="text-gray-600">Kelola data petugas bank sampah RT 05 / RW 02</p>
           </div>
           <Button 
             className="bg-green-600 hover:bg-green-700"
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Tambah Petugas
@@ -263,13 +219,13 @@ export function ManajemenPetugasPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Petugas</p>
-                  <h3 className="text-gray-900">5</h3>
+                  <h3 className="text-gray-900">{petugasData.length}</h3>
                 </div>
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Shield className="w-5 h-5 text-blue-600" />
@@ -277,16 +233,16 @@ export function ManajemenPetugasPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Petugas Bank Sampah</p>
-                  <h3 className="text-gray-900">2</h3>
+                  <p className="text-sm text-gray-600">Petugas Aktif</p>
+                  <h3 className="text-gray-900">{petugasAktif.length}</h3>
                 </div>
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Recycle className="w-5 h-5 text-green-600" />
+                  <UserPlus className="w-5 h-5 text-green-600" />
                 </div>
               </div>
             </CardContent>
@@ -296,8 +252,8 @@ export function ManajemenPetugasPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Keamanan</p>
-                  <h3 className="text-gray-900">2</h3>
+                  <p className="text-sm text-gray-600">Total Transaksi</p>
+                  <h3 className="text-gray-900">{totalTransaksi}</h3>
                 </div>
                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Shield className="w-5 h-5 text-purple-600" />
@@ -305,59 +261,12 @@ export function ManajemenPetugasPage() {
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Kebersihan</p>
-                  <h3 className="text-gray-900">1</h3>
-                </div>
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Recycle className="w-5 h-5 text-orange-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
-
-        {/* Filters & Search */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  type="search"
-                  placeholder="Cari nama, NIK, atau jabatan..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Select value={filterJabatan} onValueChange={setFilterJabatan}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Jabatan</SelectItem>
-                  <SelectItem value="Petugas Bank Sampah">Petugas Bank Sampah</SelectItem>
-                  <SelectItem value="Keamanan">Keamanan</SelectItem>
-                  <SelectItem value="Kebersihan">Kebersihan</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Daftar Petugas</CardTitle>
+            <CardTitle>Daftar Petugas ({petugasData.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -365,16 +274,15 @@ export function ManajemenPetugasPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Petugas</TableHead>
-                    <TableHead>NIK</TableHead>
                     <TableHead>Jabatan</TableHead>
                     <TableHead>Kontak</TableHead>
-                    <TableHead>Mulai Tugas</TableHead>
+                    <TableHead>Total Transaksi</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredData.map((petugas) => (
+                  {petugasData.map((petugas) => (
                     <TableRow key={petugas.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
@@ -388,29 +296,19 @@ export function ManajemenPetugasPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-gray-600">{petugas.nik}</TableCell>
                       <TableCell>
-                        <Badge 
-                          variant="outline"
-                          className={
-                            petugas.jabatan === "Petugas Bank Sampah"
-                              ? "bg-green-50 text-green-700 border-green-300"
-                              : petugas.jabatan === "Keamanan"
-                              ? "bg-blue-50 text-blue-700 border-blue-300"
-                              : "bg-orange-50 text-orange-700 border-orange-300"
-                          }
-                        >
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
                           {petugas.jabatan}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-gray-600">{petugas.telp}</TableCell>
-                      <TableCell className="text-gray-600">{petugas.mulaiTugas}</TableCell>
+                      <TableCell className="text-gray-900">{petugas.totalTransaksi || 0} transaksi</TableCell>
                       <TableCell>
                         <Badge 
                           className={
-                            petugas.status === "Aktif" 
-                              ? "bg-green-100 text-green-700 border-green-300" 
-                              : "bg-orange-100 text-orange-700 border-orange-300"
+                            petugas.status === "Aktif"
+                              ? "bg-green-100 text-green-700 border-green-300"
+                              : "bg-gray-100 text-gray-700 border-gray-300"
                           }
                           variant="outline"
                         >
@@ -433,11 +331,7 @@ export function ManajemenPetugasPage() {
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleHubungi(petugas)}>
-                              <Phone className="w-4 h-4 mr-2" />
-                              Hubungi
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(petugas)}>
+                            <DropdownMenuItem onClick={() => handleDelete(petugas)} className="text-red-600">
                               <Trash2 className="w-4 h-4 mr-2" />
                               Hapus
                             </DropdownMenuItem>
@@ -453,9 +347,9 @@ export function ManajemenPetugasPage() {
         </Card>
       </div>
 
-      {/* Add Petugas Modal */}
+      {/* Add Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Tambah Petugas Baru</DialogTitle>
           </DialogHeader>
@@ -463,37 +357,28 @@ export function ManajemenPetugasPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>NIK</Label>
+                <Label>Nama Lengkap *</Label>
                 <Input 
-                  placeholder="Masukkan NIK" 
-                  value={formData.nik}
-                  onChange={(e) => setFormData({...formData, nik: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Nama Lengkap</Label>
-                <Input 
-                  placeholder="Masukkan nama lengkap" 
+                  placeholder="Masukkan nama lengkap"
                   value={formData.nama}
                   onChange={(e) => setFormData({...formData, nama: e.target.value})}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>Email *</Label>
                 <Input 
-                  type="email" 
-                  placeholder="email@example.com" 
+                  type="email"
+                  placeholder="email@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Nomor Telepon</Label>
+                <Label>Nomor Telepon *</Label>
                 <Input 
-                  placeholder="08xx-xxxx-xxxx" 
+                  placeholder="08xx-xxxx-xxxx"
                   value={formData.telp}
                   onChange={(e) => setFormData({...formData, telp: e.target.value})}
                 />
@@ -503,57 +388,43 @@ export function ManajemenPetugasPage() {
                 <Label>Jabatan</Label>
                 <Select value={formData.jabatan} onValueChange={(value) => setFormData({...formData, jabatan: value})}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Pilih jabatan" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Petugas Bank Sampah">Petugas Bank Sampah</SelectItem>
-                    <SelectItem value="Keamanan">Keamanan</SelectItem>
-                    <SelectItem value="Kebersihan">Kebersihan</SelectItem>
+                    <SelectItem value="Koordinator Bank Sampah">Koordinator Bank Sampah</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Mulai Tugas</Label>
+                <Label>Password *</Label>
                 <Input 
-                  type="date" 
-                  value={formData.mulaiTugas}
-                  onChange={(e) => setFormData({...formData, mulaiTugas: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label>Alamat Lengkap</Label>
-                <Input 
-                  placeholder="Jl. Nama Jalan No. XX" 
-                  value={formData.alamat}
-                  onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                  type="password"
+                  placeholder="Masukkan password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value as any})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="aktif">Aktif</SelectItem>
-                    <SelectItem value="cuti">Cuti</SelectItem>
-                    <SelectItem value="nonaktif">Non-Aktif</SelectItem>
+                    <SelectItem value="Aktif">Aktif</SelectItem>
+                    <SelectItem value="Non-Aktif">Non-Aktif</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label>Gaji/Honorarium</Label>
-                <Input 
-                  type="number" 
-                  placeholder="Masukkan nominal" 
-                  value={formData.gaji}
-                  onChange={(e) => setFormData({...formData, gaji: e.target.value})}
-                />
-              </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-900">
+                💡 Petugas akan mendapatkan akses untuk mencatat transaksi bank sampah
+              </p>
             </div>
 
             <div className="flex gap-2 pt-4">
@@ -579,10 +450,107 @@ export function ManajemenPetugasPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Detail Petugas Modal */}
+      {/* Edit Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle>Edit Data Petugas</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nama Lengkap *</Label>
+                <Input 
+                  placeholder="Masukkan nama lengkap"
+                  value={formData.nama}
+                  onChange={(e) => setFormData({...formData, nama: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Email *</Label>
+                <Input 
+                  type="email"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Nomor Telepon *</Label>
+                <Input 
+                  placeholder="08xx-xxxx-xxxx"
+                  value={formData.telp}
+                  onChange={(e) => setFormData({...formData, telp: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Jabatan</Label>
+                <Select value={formData.jabatan} onValueChange={(value) => setFormData({...formData, jabatan: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Petugas Bank Sampah">Petugas Bank Sampah</SelectItem>
+                    <SelectItem value="Koordinator Bank Sampah">Koordinator Bank Sampah</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Password Baru (Kosongkan jika tidak ingin mengubah)</Label>
+                <Input 
+                  type="password"
+                  placeholder="Masukkan password baru"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value as any})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Aktif">Aktif</SelectItem>
+                    <SelectItem value="Non-Aktif">Non-Aktif</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  setShowEditModal(false);
+                  resetForm();
+                }}
+              >
+                Batal
+              </Button>
+              <Button 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={handleUpdatePetugas}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Update Data
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail Modal */}
       {selectedPetugas && (
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl" aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Detail Petugas</DialogTitle>
             </DialogHeader>
@@ -596,17 +564,12 @@ export function ManajemenPetugasPage() {
                 </Avatar>
                 <div>
                   <h3 className="text-gray-900 mb-1">{selectedPetugas.nama}</h3>
-                  <Badge 
-                    variant="outline"
-                    className={
-                      selectedPetugas.jabatan === "Petugas Bank Sampah"
-                        ? "bg-green-50 text-green-700 border-green-300"
-                        : selectedPetugas.jabatan === "Keamanan"
-                        ? "bg-blue-50 text-blue-700 border-blue-300"
-                        : "bg-orange-50 text-orange-700 border-orange-300"
-                    }
-                  >
-                    {selectedPetugas.jabatan}
+                  <Badge className={
+                    selectedPetugas.status === "Aktif"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-700"
+                  }>
+                    {selectedPetugas.status}
                   </Badge>
                 </div>
               </div>
@@ -614,139 +577,36 @@ export function ManajemenPetugasPage() {
               {/* Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">NIK</p>
-                  <p className="text-gray-900">{selectedPetugas.nik}</p>
+                  <p className="text-sm text-gray-600 mb-1">Email</p>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    <p className="text-gray-900">{selectedPetugas.email}</p>
+                  </div>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Nomor Telepon</p>
-                  <p className="text-gray-900">{selectedPetugas.telp}</p>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-gray-400" />
+                    <p className="text-gray-900">{selectedPetugas.telp}</p>
+                  </div>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Email</p>
-                  <p className="text-gray-900">{selectedPetugas.email}</p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Mulai Tugas</p>
-                  <p className="text-gray-900">{selectedPetugas.mulaiTugas}</p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Status</p>
-                  <Badge 
-                    className={
-                      selectedPetugas.status === "Aktif" 
-                        ? "bg-green-100 text-green-700" 
-                        : "bg-orange-100 text-orange-700"
-                    }
-                  >
-                    {selectedPetugas.status}
+                  <p className="text-sm text-gray-600 mb-1">Jabatan</p>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                    {selectedPetugas.jabatan}
                   </Badge>
                 </div>
-              </div>
 
-              <div className="flex gap-2 pt-4">
-                <Button variant="outline" className="flex-1" onClick={() => {
-                  setShowDetailModal(false);
-                  handleEdit(selectedPetugas);
-                }}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Data
-                </Button>
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700" onClick={() => handleHubungi(selectedPetugas)}>
-                  <Phone className="w-4 h-4 mr-2" />
-                  Hubungi
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Edit Petugas Modal */}
-      {selectedPetugas && (
-        <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Data Petugas</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>NIK</Label>
-                  <Input 
-                    placeholder="Masukkan NIK" 
-                    value={formData.nik}
-                    onChange={(e) => setFormData({...formData, nik: e.target.value})}
-                  />
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total Transaksi</p>
+                  <p className="text-gray-900">{selectedPetugas.totalTransaksi || 0} transaksi</p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Nama Lengkap</Label>
-                  <Input 
-                    placeholder="Masukkan nama lengkap" 
-                    value={formData.nama}
-                    onChange={(e) => setFormData({...formData, nama: e.target.value})}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input 
-                    type="email" 
-                    placeholder="email@example.com" 
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Nomor Telepon</Label>
-                  <Input 
-                    placeholder="08xx-xxxx-xxxx" 
-                    value={formData.telp}
-                    onChange={(e) => setFormData({...formData, telp: e.target.value})}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Jabatan</Label>
-                  <Select value={formData.jabatan} onValueChange={(value) => setFormData({...formData, jabatan: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih jabatan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Petugas Bank Sampah">Petugas Bank Sampah</SelectItem>
-                      <SelectItem value="Keamanan">Keamanan</SelectItem>
-                      <SelectItem value="Kebersihan">Kebersihan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Mulai Tugas</Label>
-                  <Input 
-                    type="date" 
-                    value={formData.mulaiTugas}
-                    onChange={(e) => setFormData({...formData, mulaiTugas: e.target.value})}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="aktif">Aktif</SelectItem>
-                      <SelectItem value="cuti">Cuti</SelectItem>
-                      <SelectItem value="nonaktif">Non-Aktif</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Bergabung Sejak</p>
+                  <p className="text-gray-900">{new Date(selectedPetugas.bergabung).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
               </div>
 
@@ -755,18 +615,23 @@ export function ManajemenPetugasPage() {
                   variant="outline" 
                   className="flex-1"
                   onClick={() => {
-                    setShowEditModal(false);
-                    resetForm();
+                    setShowDetailModal(false);
+                    handleEdit(selectedPetugas);
                   }}
                 >
-                  Batal
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Data
                 </Button>
                 <Button 
-                  className="flex-1 bg-green-600 hover:bg-green-700"
-                  onClick={handleUpdatePetugas}
+                  variant="outline"
+                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleDelete(selectedPetugas);
+                  }}
                 >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Simpan Perubahan
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Hapus
                 </Button>
               </div>
             </div>
@@ -774,11 +639,11 @@ export function ManajemenPetugasPage() {
         </Dialog>
       )}
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Petugas</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Data Petugas</AlertDialogTitle>
             <AlertDialogDescription>
               Apakah Anda yakin ingin menghapus petugas <strong>{selectedPetugas?.nama}</strong>? 
               Tindakan ini tidak dapat dibatalkan.
@@ -786,11 +651,11 @@ export function ManajemenPetugasPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
+              onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700"
-              onClick={handleDelete}
             >
-              Hapus
+              Ya, Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

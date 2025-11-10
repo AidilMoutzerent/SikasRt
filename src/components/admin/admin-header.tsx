@@ -1,9 +1,26 @@
 import { useState } from "react";
-import { Bell, LogOut, Search, UserPlus, FileText } from "lucide-react";
+import { Bell, LogOut, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 import logoSikas from "figma:asset/b7558ce2490bcde3a0e06dac40727e86e2d7742c.png";
 
 interface AdminHeaderProps {
@@ -50,24 +67,6 @@ export function AdminHeader({ onLogout }: AdminHeaderProps) {
 
         {/* Action Buttons & Profile */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* Quick Action Buttons */}
-          <Button 
-            size="sm"
-            className="hidden lg:flex bg-green-600 hover:bg-green-700"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Tambah Warga
-          </Button>
-          
-          <Button 
-            size="sm"
-            variant="outline"
-            className="hidden lg:flex"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Buat Tagihan
-          </Button>
-
           {/* Notification Bell */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-5 h-5" />

@@ -19,16 +19,45 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../ui/alert-dialog";
 import { Label } from "../../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { toast } from "sonner@2.0.3";
+
+interface Warga {
+  id: number;
+  nama: string;
+  nik: string;
+  alamat: string;
+  telp: string;
+  email: string;
+  status: string;
+  iuran: string;
+  avatar: string;
+  rt: string;
+  rw: string;
+  statusKepemilikan: string;
+}
 
 export function ManajemenWargaPage() {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedWarga, setSelectedWarga] = useState<any>(null);
-
-  const wargaData = [
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedWarga, setSelectedWarga] = useState<Warga | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const [wargaData, setWargaData] = useState<Warga[]>([
     {
       id: 1,
       nama: "Budi Santoso",
@@ -38,7 +67,10 @@ export function ManajemenWargaPage() {
       email: "budi@email.com",
       status: "Aktif",
       iuran: "Lunas",
-      avatar: "Budi"
+      avatar: "Budi",
+      rt: "05",
+      rw: "02",
+      statusKepemilikan: "Pemilik Rumah"
     },
     {
       id: 2,
@@ -49,7 +81,10 @@ export function ManajemenWargaPage() {
       email: "siti@email.com",
       status: "Aktif",
       iuran: "Belum Bayar",
-      avatar: "Siti"
+      avatar: "Siti",
+      rt: "05",
+      rw: "02",
+      statusKepemilikan: "Pemilik Rumah"
     },
     {
       id: 3,
@@ -60,7 +95,10 @@ export function ManajemenWargaPage() {
       email: "andi@email.com",
       status: "Aktif",
       iuran: "Lunas",
-      avatar: "Andi"
+      avatar: "Andi",
+      rt: "05",
+      rw: "02",
+      statusKepemilikan: "Kontrak"
     },
     {
       id: 4,
@@ -71,7 +109,10 @@ export function ManajemenWargaPage() {
       email: "dewi@email.com",
       status: "Aktif",
       iuran: "Lunas",
-      avatar: "Dewi"
+      avatar: "Dewi",
+      rt: "05",
+      rw: "02",
+      statusKepemilikan: "Pemilik Rumah"
     },
     {
       id: 5,
@@ -82,13 +123,137 @@ export function ManajemenWargaPage() {
       email: "rudi@email.com",
       status: "Aktif",
       iuran: "Belum Bayar",
-      avatar: "Rudi"
+      avatar: "Rudi",
+      rt: "05",
+      rw: "02",
+      statusKepemilikan: "Kost"
     },
-  ];
+  ]);
 
-  const handleViewDetail = (warga: any) => {
+  const [formData, setFormData] = useState({
+    nama: "",
+    nik: "",
+    email: "",
+    telp: "",
+    alamat: "",
+    rt: "05",
+    rw: "02",
+    statusKepemilikan: "",
+    status: "Aktif"
+  });
+
+  // Filter warga based on search
+  const filteredWarga = wargaData.filter(warga => 
+    warga.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    warga.nik.includes(searchQuery) ||
+    warga.alamat.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleViewDetail = (warga: Warga) => {
     setSelectedWarga(warga);
     setShowDetailModal(true);
+  };
+
+  const handleEdit = (warga: Warga) => {
+    setSelectedWarga(warga);
+    setFormData({
+      nama: warga.nama,
+      nik: warga.nik,
+      email: warga.email,
+      telp: warga.telp,
+      alamat: warga.alamat,
+      rt: warga.rt,
+      rw: warga.rw,
+      statusKepemilikan: warga.statusKepemilikan,
+      status: warga.status
+    });
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (warga: Warga) => {
+    setSelectedWarga(warga);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedWarga) {
+      setWargaData(wargaData.filter(w => w.id !== selectedWarga.id));
+      toast.success(`Data ${selectedWarga.nama} berhasil dihapus`);
+      setShowDeleteDialog(false);
+      setSelectedWarga(null);
+    }
+  };
+
+  const handleAddWarga = () => {
+    if (!formData.nama || !formData.nik || !formData.email || !formData.telp || !formData.alamat || !formData.statusKepemilikan) {
+      toast.error("Mohon lengkapi semua field!");
+      return;
+    }
+
+    const newWarga: Warga = {
+      id: Math.max(...wargaData.map(w => w.id)) + 1,
+      nama: formData.nama,
+      nik: formData.nik,
+      email: formData.email,
+      telp: formData.telp,
+      alamat: formData.alamat,
+      rt: formData.rt,
+      rw: formData.rw,
+      statusKepemilikan: formData.statusKepemilikan,
+      status: formData.status,
+      iuran: "Belum Bayar",
+      avatar: formData.nama
+    };
+
+    setWargaData([...wargaData, newWarga]);
+    toast.success("Warga berhasil ditambahkan!");
+    setShowAddModal(false);
+    resetForm();
+  };
+
+  const handleUpdateWarga = () => {
+    if (!selectedWarga) return;
+    
+    if (!formData.nama || !formData.nik || !formData.email || !formData.telp || !formData.alamat || !formData.statusKepemilikan) {
+      toast.error("Mohon lengkapi semua field!");
+      return;
+    }
+
+    const updatedWarga = wargaData.map(w => 
+      w.id === selectedWarga.id 
+        ? {
+            ...w,
+            nama: formData.nama,
+            nik: formData.nik,
+            email: formData.email,
+            telp: formData.telp,
+            alamat: formData.alamat,
+            statusKepemilikan: formData.statusKepemilikan,
+            status: formData.status,
+            avatar: formData.nama
+          }
+        : w
+    );
+
+    setWargaData(updatedWarga);
+    toast.success("Data warga berhasil diupdate!");
+    setShowEditModal(false);
+    setSelectedWarga(null);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setFormData({
+      nama: "",
+      nik: "",
+      email: "",
+      telp: "",
+      alamat: "",
+      rt: "05",
+      rw: "02",
+      statusKepemilikan: "",
+      status: "Aktif"
+    });
   };
 
   return (
@@ -102,7 +267,10 @@ export function ManajemenWargaPage() {
           </div>
           <Button 
             className="bg-green-600 hover:bg-green-700"
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Tambah Warga
@@ -116,7 +284,7 @@ export function ManajemenWargaPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Warga</p>
-                  <h3 className="text-gray-900">150</h3>
+                  <h3 className="text-gray-900">{wargaData.length}</h3>
                 </div>
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <MapPin className="w-5 h-5 text-blue-600" />
@@ -130,7 +298,7 @@ export function ManajemenWargaPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Warga Aktif</p>
-                  <h3 className="text-gray-900">148</h3>
+                  <h3 className="text-gray-900">{wargaData.filter(w => w.status === "Aktif").length}</h3>
                 </div>
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <Badge className="w-5 h-5 bg-green-600" />
@@ -143,8 +311,8 @@ export function ManajemenWargaPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Warga Baru (Bulan Ini)</p>
-                  <h3 className="text-gray-900">5</h3>
+                  <p className="text-sm text-gray-600">Iuran Lunas</p>
+                  <h3 className="text-gray-900">{wargaData.filter(w => w.iuran === "Lunas").length}</h3>
                 </div>
                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                   <UserPlus className="w-5 h-5 text-purple-600" />
@@ -164,6 +332,8 @@ export function ManajemenWargaPage() {
                   type="search"
                   placeholder="Cari nama, NIK, atau alamat..."
                   className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <Button variant="outline">
@@ -181,7 +351,7 @@ export function ManajemenWargaPage() {
         {/* Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Daftar Warga</CardTitle>
+            <CardTitle>Daftar Warga ({filteredWarga.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -197,7 +367,7 @@ export function ManajemenWargaPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {wargaData.map((warga) => (
+                  {filteredWarga.map((warga) => (
                     <TableRow key={warga.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
@@ -242,15 +412,11 @@ export function ManajemenWargaPage() {
                               <Eye className="w-4 h-4 mr-2" />
                               Lihat Detail
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEdit(warga)}>
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Mail className="w-4 h-4 mr-2" />
-                              Kirim Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem onClick={() => handleDelete(warga)} className="text-red-600">
                               <Trash2 className="w-4 h-4 mr-2" />
                               Hapus
                             </DropdownMenuItem>
@@ -268,7 +434,7 @@ export function ManajemenWargaPage() {
 
       {/* Add Warga Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Tambah Warga Baru</DialogTitle>
           </DialogHeader>
@@ -276,63 +442,84 @@ export function ManajemenWargaPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>NIK</Label>
-                <Input placeholder="Masukkan NIK" />
+                <Label>NIK *</Label>
+                <Input 
+                  placeholder="Masukkan NIK" 
+                  value={formData.nik}
+                  onChange={(e) => setFormData({...formData, nik: e.target.value})}
+                />
               </div>
 
               <div className="space-y-2">
-                <Label>Nama Lengkap</Label>
-                <Input placeholder="Masukkan nama lengkap" />
+                <Label>Nama Lengkap *</Label>
+                <Input 
+                  placeholder="Masukkan nama lengkap" 
+                  value={formData.nama}
+                  onChange={(e) => setFormData({...formData, nama: e.target.value})}
+                />
               </div>
 
               <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" placeholder="email@example.com" />
+                <Label>Email *</Label>
+                <Input 
+                  type="email" 
+                  placeholder="email@example.com" 
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
               </div>
 
               <div className="space-y-2">
-                <Label>Nomor Telepon</Label>
-                <Input placeholder="08xx-xxxx-xxxx" />
+                <Label>Nomor Telepon *</Label>
+                <Input 
+                  placeholder="08xx-xxxx-xxxx" 
+                  value={formData.telp}
+                  onChange={(e) => setFormData({...formData, telp: e.target.value})}
+                />
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label>Alamat Lengkap</Label>
-                <Input placeholder="Jl. Nama Jalan No. XX" />
+                <Label>Alamat Lengkap *</Label>
+                <Input 
+                  placeholder="Jl. Nama Jalan No. XX" 
+                  value={formData.alamat}
+                  onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label>RT</Label>
-                <Input defaultValue="05" disabled />
+                <Input value={formData.rt} disabled />
               </div>
 
               <div className="space-y-2">
                 <Label>RW</Label>
-                <Input defaultValue="02" disabled />
+                <Input value={formData.rw} disabled />
               </div>
 
               <div className="space-y-2">
-                <Label>Status Kepemilikan</Label>
-                <Select>
+                <Label>Status Kepemilikan *</Label>
+                <Select value={formData.statusKepemilikan} onValueChange={(value) => setFormData({...formData, statusKepemilikan: value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pemilik">Pemilik Rumah</SelectItem>
-                    <SelectItem value="kontrak">Kontrak</SelectItem>
-                    <SelectItem value="kost">Kost</SelectItem>
+                    <SelectItem value="Pemilik Rumah">Pemilik Rumah</SelectItem>
+                    <SelectItem value="Kontrak">Kontrak</SelectItem>
+                    <SelectItem value="Kost">Kost</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <Label>Status Warga</Label>
-                <Select defaultValue="aktif">
+                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="aktif">Aktif</SelectItem>
-                    <SelectItem value="nonaktif">Non-Aktif</SelectItem>
+                    <SelectItem value="Aktif">Aktif</SelectItem>
+                    <SelectItem value="Non-Aktif">Non-Aktif</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -342,16 +529,16 @@ export function ManajemenWargaPage() {
               <Button 
                 variant="outline" 
                 className="flex-1"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  resetForm();
+                }}
               >
                 Batal
               </Button>
               <Button 
                 className="flex-1 bg-green-600 hover:bg-green-700"
-                onClick={() => {
-                  alert("Warga berhasil ditambahkan!");
-                  setShowAddModal(false);
-                }}
+                onClick={handleAddWarga}
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 Tambah Warga
@@ -361,10 +548,116 @@ export function ManajemenWargaPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Warga Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle>Edit Data Warga</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>NIK *</Label>
+                <Input 
+                  placeholder="Masukkan NIK" 
+                  value={formData.nik}
+                  onChange={(e) => setFormData({...formData, nik: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Nama Lengkap *</Label>
+                <Input 
+                  placeholder="Masukkan nama lengkap" 
+                  value={formData.nama}
+                  onChange={(e) => setFormData({...formData, nama: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Email *</Label>
+                <Input 
+                  type="email" 
+                  placeholder="email@example.com" 
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Nomor Telepon *</Label>
+                <Input 
+                  placeholder="08xx-xxxx-xxxx" 
+                  value={formData.telp}
+                  onChange={(e) => setFormData({...formData, telp: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label>Alamat Lengkap *</Label>
+                <Input 
+                  placeholder="Jl. Nama Jalan No. XX" 
+                  value={formData.alamat}
+                  onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Status Kepemilikan *</Label>
+                <Select value={formData.statusKepemilikan} onValueChange={(value) => setFormData({...formData, statusKepemilikan: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pemilik Rumah">Pemilik Rumah</SelectItem>
+                    <SelectItem value="Kontrak">Kontrak</SelectItem>
+                    <SelectItem value="Kost">Kost</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Status Warga</Label>
+                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Aktif">Aktif</SelectItem>
+                    <SelectItem value="Non-Aktif">Non-Aktif</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  setShowEditModal(false);
+                  resetForm();
+                }}
+              >
+                Batal
+              </Button>
+              <Button 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={handleUpdateWarga}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Update Data
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Detail Warga Modal */}
       {selectedWarga && (
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl" aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Detail Warga</DialogTitle>
             </DialogHeader>
@@ -378,7 +671,9 @@ export function ManajemenWargaPage() {
                 </Avatar>
                 <div>
                   <h3 className="text-gray-900 mb-1">{selectedWarga.nama}</h3>
-                  <Badge className="bg-green-100 text-green-700">Warga Aktif</Badge>
+                  <Badge className={selectedWarga.status === "Aktif" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}>
+                    {selectedWarga.status}
+                  </Badge>
                 </div>
               </div>
 
@@ -405,6 +700,11 @@ export function ManajemenWargaPage() {
                 </div>
 
                 <div>
+                  <p className="text-sm text-gray-600 mb-1">Status Kepemilikan</p>
+                  <p className="text-gray-900">{selectedWarga.statusKepemilikan}</p>
+                </div>
+
+                <div>
                   <p className="text-sm text-gray-600 mb-1">Status Iuran Bulan Ini</p>
                   <Badge 
                     className={
@@ -419,19 +719,54 @@ export function ManajemenWargaPage() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button variant="outline" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleEdit(selectedWarga);
+                  }}
+                >
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Data
                 </Button>
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Kirim Email
+                <Button 
+                  variant="outline"
+                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleDelete(selectedWarga);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Hapus
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Data Warga</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus data warga <strong>{selectedWarga?.nama}</strong>? Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Ya, Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
