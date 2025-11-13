@@ -8,6 +8,7 @@ import logoSikas from "figma:asset/b7558ce2490bcde3a0e06dac40727e86e2d7742c.png"
 import { toast } from "react-toastify";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 import { UserPlus } from "lucide-react";
+import { authService } from "../../services/auth.service";
 
 export type UserRole = "admin" | "warga" | "petugas" | null;
 
@@ -20,6 +21,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -75,15 +77,30 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedRole && formData.username && formData.password) {
-      // Simulate login success
-      onLogin(selectedRole);
+    setIsLoading(true);
+    
+    try {
+      const result = await authService.login({
+        email: formData.username, // bisa email atau username
+        password: formData.password,
+      });
+
+      if (result.success && result.data) {
+        toast.success('Login berhasil!');
+        onLogin(result.data.profile.role);
+      } else {
+        toast.error(result.error || 'Login gagal');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Terjadi kesalahan');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
@@ -102,15 +119,53 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       return;
     }
 
-    // Simulate registration success
-    toast.success(`Registrasi berhasil! Silakan login dengan akun ${registerData.username}`);
+    if (selectedRole === "admin" && (!registerData.jabatan || !registerData.nomorRekeningBRI || !registerData.namaPemilikRekening)) {
+      toast.error("Jabatan, nomor rekening BRI, dan nama pemilik rekening wajib diisi!");
+      return;
+    }
+
+    setIsLoading(true);
     
-    // Reset and switch to login mode
-    setIsRegisterMode(false);
-    setFormData({
-      username: registerData.username,
-      password: "",
-    });
+    try {
+      // Prepare data
+      const data: any = {
+        email: registerData.email,
+        password: registerData.password,
+        nama: registerData.namaLengkap,
+        role: selectedRole!,
+        telepon: registerData.noTelepon,
+      };
+
+      // Add role-specific fields
+      if (selectedRole === 'warga') {
+        data.blok = registerData.blok;
+        data.nomor_rumah = registerData.nomorRumah;
+      } else if (selectedRole === 'admin') {
+        data.jabatan = registerData.jabatan;
+        data.nomor_rekening_bri = registerData.nomorRekeningBRI;
+        data.nama_pemilik_rekening = registerData.namaPemilikRekening;
+      }
+
+      // Register
+      const result = await authService.register(data);
+
+      if (result.success) {
+        toast.success(result.message || 'Registrasi berhasil! Silakan login.');
+        setIsRegisterMode(false);
+        setFormData({
+          username: registerData.email,
+          password: "",
+        });
+      } else {
+        toast.error(result.error || 'Registrasi gagal');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Terjadi kesalahan');
+    } finally {
+      setIsLoading(false);
+    }
+    
+    // Reset form
     setRegisterData({
       namaLengkap: "",
       email: "",
