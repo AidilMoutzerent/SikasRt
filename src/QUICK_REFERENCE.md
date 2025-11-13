@@ -434,14 +434,6 @@ Petugas: petugas / petugas123
 
 **Periode Format:** `YYYY-MM` (e.g., "2025-01")
 
-**Blok Options:** A, B, C, D
-
-**Status Iuran:** belum_bayar, lunas, terlambat
-
-**Metode Pembayaran:** QRIS, Transfer Bank, Tunai
-
-**Kategori Sampah:** Plastik, Kertas, Logam, Kaca, Elektronik, Lainnya
-
 ---
 
 **Happy Coding! 🎉**

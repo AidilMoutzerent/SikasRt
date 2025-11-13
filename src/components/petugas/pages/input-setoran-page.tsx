@@ -39,22 +39,11 @@ interface ItemSampah {
   berat: number;
 }
 
-const daftarWarga: Warga[] = [
-  { id: 1, nama: "Siti Aminah", nomorRumah: "B2", blok: "Blok B", saldo: 12000 },
-  { id: 2, nama: "Budi Santoso", nomorRumah: "A5", blok: "Blok A", saldo: 25000 },
-  { id: 3, nama: "Ahmad Zulfikar", nomorRumah: "C12", blok: "Blok C", saldo: 8500 },
-  { id: 4, nama: "Dewi Lestari", nomorRumah: "B7", blok: "Blok B", saldo: 15000 },
-  { id: 5, nama: "Eko Prasetyo", nomorRumah: "A3", blok: "Blok A", saldo: 32000 },
-];
+// Data akan diambil dari API - saat ini kosong
+const daftarWarga: Warga[] = [];
 
-const jenisSampah: JenisSampah[] = [
-  { id: "kardus", nama: "Kardus", hargaPerKg: 1500 },
-  { id: "botol-plastik", nama: "Botol Plastik", hargaPerKg: 1000 },
-  { id: "kertas", nama: "Kertas", hargaPerKg: 800 },
-  { id: "besi", nama: "Besi/Logam", hargaPerKg: 3000 },
-  { id: "aluminium", nama: "Kaleng Aluminium", hargaPerKg: 2500 },
-  { id: "kaca", nama: "Kaca/Botol Kaca", hargaPerKg: 500 },
-];
+// Data akan diambil dari API - saat ini kosong
+const jenisSampah: JenisSampah[] = [];
 
 export function InputSetoranPage() {
   const [searchQuery, setSearchQuery] = useState("");

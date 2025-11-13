@@ -1,45 +1,43 @@
 # API Documentation - Sistem Informasi Warga RT
 
-Backend API untuk aplikasi Sistem Informasi Warga RT menggunakan Supabase Edge Functions dengan Hono framework.
-
 ## Base URL
-
 ```
-https://{projectId}.supabase.co/functions/v1/make-server-784cdc32
+Production: https://[your-project].supabase.co/functions/v1/server
+Development: http://localhost:54321/functions/v1/server
 ```
 
 ## Authentication
 
-Sebagian besar endpoint memerlukan autentikasi. Gunakan Bearer token di header:
+Semua endpoint (kecuali auth endpoints) memerlukan JWT token di header:
 
 ```
-Authorization: Bearer {accessToken}
+Authorization: Bearer <your-jwt-token>
 ```
 
-Token didapatkan dari endpoint `/auth/login` atau `/auth/register`.
+Token didapat dari Supabase Auth setelah login.
 
 ---
 
-## 1. Authentication Endpoints
+## Authentication Endpoints
 
-### 1.1 Register User
-
-**POST** `/auth/register`
-
-Mendaftarkan user baru (Warga atau Admin).
+### POST /api/auth/register
+Register user baru (Admin atau Warga).
 
 **Request Body:**
 ```json
 {
-  "role": "warga",  // "warga" atau "admin"
-  "namaLengkap": "John Doe",
-  "email": "john@example.com",
-  "username": "johndoe",
+  "email": "admin@example.com",
   "password": "password123",
-  // Untuk Warga (wajib):
-  "nomorRumah": "12",
+  "nama": "John Doe",
+  "role": "admin", // "admin" | "warga"
+  "telepon": "08123456789",
+  // Untuk Warga:
   "blok": "A",
-  "noTelepon": "081234567890"
+  "nomor_rumah": "01",
+  // Untuk Admin:
+  "jabatan": "Ketua RT",
+  "nomor_rekening_bri": "1234567890",
+  "nama_pemilik_rekening": "John Doe"
 }
 ```
 
@@ -48,23 +46,22 @@ Mendaftarkan user baru (Warga atau Admin).
 {
   "success": true,
   "message": "Registrasi berhasil",
-  "userId": "uuid-here",
-  "role": "warga"
+  "data": {
+    "user_id": "uuid",
+    "email": "admin@example.com",
+    "role": "admin"
+  }
 }
 ```
 
-### 1.2 Login
-
-**POST** `/auth/login`
-
-Login user (Warga, Admin, atau Petugas).
+### POST /api/auth/login
+Login user.
 
 **Request Body:**
 ```json
 {
-  "username": "johndoe",  // atau email
-  "password": "password123",
-  "role": "warga"  // "warga", "admin", atau "petugas"
+  "email": "admin@example.com",
+  "password": "password123"
 }
 ```
 
@@ -72,277 +69,191 @@ Login user (Warga, Admin, atau Petugas).
 ```json
 {
   "success": true,
-  "accessToken": "jwt-token-here",
-  "user": {
-    "id": "uuid",
-    "username": "johndoe",
-    "email": "john@example.com",
-    "namaLengkap": "John Doe",
-    "role": "warga",
-    // Data tambahan sesuai role
-    "nomorRumah": "12",
-    "blok": "A",
-    "noTelepon": "081234567890"
+  "data": {
+    "access_token": "jwt-token",
+    "user": {
+      "id": "uuid",
+      "email": "admin@example.com",
+      "role": "admin",
+      "nama": "John Doe"
+    }
   }
 }
 ```
 
-### 1.3 Get Current User
-
-**GET** `/auth/me`
-
-Mendapatkan data user yang sedang login.
-
-**Headers:** Requires Authentication
+### POST /api/auth/logout
+Logout user.
 
 **Response:**
 ```json
 {
-  "user": {
-    "id": "uuid",
-    "username": "johndoe",
-    "email": "john@example.com",
-    "namaLengkap": "John Doe",
-    "role": "warga",
-    "nomorRumah": "12",
-    "blok": "A"
-  }
+  "success": true,
+  "message": "Logout berhasil"
 }
 ```
 
 ---
 
-## 2. Warga Management (Admin Only)
+## Warga Endpoints
 
-### 2.1 Get All Warga
-
-**GET** `/warga`
-
-**Headers:** Requires Authentication (Admin only)
-
-**Response:**
-```json
-{
-  "warga": [
-    {
-      "id": "uuid",
-      "userId": "uuid",
-      "namaLengkap": "John Doe",
-      "email": "john@example.com",
-      "username": "johndoe",
-      "nomorRumah": "12",
-      "blok": "A",
-      "noTelepon": "081234567890",
-      "statusAktif": true,
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    }
-  ]
-}
-```
-
-### 2.2 Get Warga by ID
-
-**GET** `/warga/:id`
-
-**Headers:** Requires Authentication
-
-### 2.3 Update Warga
-
-**PUT** `/warga/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
-**Request Body:**
-```json
-{
-  "namaLengkap": "John Doe Updated",
-  "noTelepon": "089999999999",
-  "statusAktif": false
-}
-```
-
-### 2.4 Delete Warga
-
-**DELETE** `/warga/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
----
-
-## 3. Iuran Management
-
-### 3.1 Get Iuran by Warga
-
-**GET** `/iuran/:wargaId`
-
-**Headers:** Requires Authentication
-
-**Response:**
-```json
-{
-  "iuran": [
-    {
-      "id": "uuid",
-      "wargaId": "uuid",
-      "periode": "2025-01",
-      "jumlah": 50000,
-      "status": "lunas",
-      "metodePembayaran": "QRIS",
-      "buktiPembayaran": "url-to-image",
-      "paidAt": "2025-01-05T10:00:00.000Z",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    }
-  ]
-}
-```
-
-### 3.2 Get All Iuran (Admin Only)
-
-**GET** `/iuran`
-
-**Headers:** Requires Authentication (Admin only)
-
-### 3.3 Create/Update Iuran
-
-**POST** `/iuran`
-
-**Headers:** Requires Authentication (Admin only)
-
-**Request Body:**
-```json
-{
-  "wargaId": "uuid",
-  "periode": "2025-01",
-  "jumlah": 50000,
-  "status": "belum_bayar"
-}
-```
-
-### 3.4 Update Iuran Status
-
-**PUT** `/iuran/:wargaId/:periode`
-
-**Headers:** Requires Authentication
-
-**Request Body:**
-```json
-{
-  "status": "lunas",
-  "metodePembayaran": "QRIS",
-  "buktiPembayaran": "base64-or-url"
-}
-```
-
----
-
-## 4. Bank Sampah - Harga Sampah
-
-### 4.1 Get All Harga Sampah
-
-**GET** `/harga-sampah`
-
-**Headers:** Requires Authentication
-
-**Response:**
-```json
-{
-  "hargaSampah": [
-    {
-      "id": "uuid",
-      "jenisSampah": "Plastik PET",
-      "kategori": "Plastik",
-      "hargaPerKg": 3000,
-      "satuan": "kg",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    }
-  ]
-}
-```
-
-### 4.2 Create Harga Sampah
-
-**POST** `/harga-sampah`
-
-**Headers:** Requires Authentication (Admin only)
-
-**Request Body:**
-```json
-{
-  "jenisSampah": "Plastik PET",
-  "kategori": "Plastik",
-  "hargaPerKg": 3000,
-  "satuan": "kg"
-}
-```
-
-### 4.3 Update Harga Sampah
-
-**PUT** `/harga-sampah/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
-### 4.4 Delete Harga Sampah
-
-**DELETE** `/harga-sampah/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
----
-
-## 5. Bank Sampah - Setoran
-
-### 5.1 Get All Setoran
-
-**GET** `/setoran?wargaId=uuid`
-
-**Headers:** Requires Authentication
+### GET /api/warga
+Get semua warga (Admin only).
 
 **Query Parameters:**
-- `wargaId` (optional): Filter by specific warga
+- `search` (optional): Search by nama/blok/nomor_rumah
+- `blok` (optional): Filter by blok
+- `status` (optional): Filter by is_active
 
 **Response:**
 ```json
 {
-  "setoran": [
+  "success": true,
+  "data": [
     {
       "id": "uuid",
-      "wargaId": "uuid",
-      "petugasId": "uuid",
-      "items": [
-        {
-          "jenisSampah": "Plastik PET",
-          "berat": 2.5,
-          "hargaPerKg": 3000,
-          "totalHarga": 7500
-        }
-      ],
-      "totalBerat": 2.5,
-      "totalHarga": 7500,
-      "tanggal": "2025-01-10T10:00:00.000Z",
-      "createdAt": "2025-01-10T10:00:00.000Z"
+      "nama": "John Doe",
+      "email": "warga@example.com",
+      "blok": "A",
+      "nomor_rumah": "01",
+      "telepon": "08123456789",
+      "is_active": true,
+      "created_at": "2025-11-13T00:00:00Z"
     }
-  ]
+  ],
+  "total": 0,
+  "page": 1,
+  "limit": 50
 }
 ```
 
-### 5.2 Create Setoran
+### GET /api/warga/:id
+Get detail warga.
 
-**POST** `/setoran`
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "nama": "John Doe",
+    "email": "warga@example.com",
+    "blok": "A",
+    "nomor_rumah": "01",
+    "telepon": "08123456789",
+    "nik": "1234567890123456",
+    "no_kk": "1234567890123456",
+    "alamat_lengkap": "Jl. Contoh No. 1",
+    "jumlah_penghuni": 4,
+    "status_kepemilikan": "milik_sendiri",
+    "is_active": true
+  }
+}
+```
 
-**Headers:** Requires Authentication (Admin or Petugas only)
+### POST /api/warga
+Tambah warga baru (Admin only).
 
 **Request Body:**
 ```json
 {
-  "wargaId": "uuid",
-  "items": [
+  "nama": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "password123",
+  "blok": "B",
+  "nomor_rumah": "05",
+  "telepon": "08198765432",
+  "nik": "1234567890123456",
+  "no_kk": "1234567890123456"
+}
+```
+
+### PUT /api/warga/:id
+Update data warga.
+
+### DELETE /api/warga/:id
+Hapus/nonaktifkan warga (Admin only).
+
+---
+
+## Iuran Endpoints
+
+### GET /api/iuran
+Get semua iuran (Admin) atau iuran sendiri (Warga).
+
+**Query Parameters:**
+- `bulan` (optional): Filter by bulan (1-12)
+- `tahun` (optional): Filter by tahun
+- `status` (optional): Filter by status (belum_lunas/lunas)
+- `warga_id` (optional): Filter by warga (Admin only)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
     {
-      "jenisSampah": "Plastik PET",
-      "berat": 2.5,
-      "hargaPerKg": 3000,
-      "totalHarga": 7500
+      "id": "uuid",
+      "warga_id": "uuid",
+      "warga_nama": "John Doe",
+      "blok": "A",
+      "nomor_rumah": "01",
+      "bulan": 11,
+      "tahun": 2025,
+      "nominal": 25000,
+      "denda": 0,
+      "status": "belum_lunas",
+      "tanggal_jatuh_tempo": "2025-11-10",
+      "created_at": "2025-11-01T00:00:00Z"
     }
-  ]
+  ],
+  "total": 0
+}
+```
+
+### POST /api/iuran
+Buat tagihan iuran (Admin only).
+
+**Request Body:**
+```json
+{
+  "bulan": 11,
+  "tahun": 2025,
+  "nominal": 25000,
+  "tanggal_jatuh_tempo": "2025-11-10",
+  "warga_ids": ["uuid1", "uuid2"], // Optional, jika kosong = semua warga
+  "keterangan": "Iuran November 2025"
+}
+```
+
+### POST /api/iuran/bulk
+Buat tagihan massal untuk semua warga (Admin only).
+
+**Request Body:**
+```json
+{
+  "bulan": 11,
+  "tahun": 2025,
+  "nominal": 25000,
+  "tanggal_jatuh_tempo": "2025-11-10"
+}
+```
+
+---
+
+## Pembayaran Iuran Endpoints
+
+### POST /api/pembayaran
+Bayar iuran (Warga) - **Transfer BRI only**.
+
+**Request Body:**
+```json
+{
+  "iuran_id": "uuid",
+  "jumlah_bayar": 25000,
+  "metode_pembayaran": "transfer_bri",
+  "nomor_referensi": "BRI20251113001",
+  "bukti_transfer": "https://...", // Optional: URL file upload
+  "catatan": "Sudah transfer via BRI Mobile"
 }
 ```
 
@@ -350,283 +261,586 @@ Mendapatkan data user yang sedang login.
 ```json
 {
   "success": true,
-  "setoran": { /* setoran data */ },
-  "saldoBaru": 15000
+  "message": "Pembayaran berhasil dicatat. Menunggu verifikasi admin.",
+  "data": {
+    "id": "uuid",
+    "status": "pending",
+    "rekening_tujuan": {
+      "bank": "BRI",
+      "nomor_rekening": "1234567890",
+      "nama_pemilik": "RT 05 - John Doe"
+    }
+  }
 }
 ```
 
-### 5.3 Get Saldo Bank Sampah
+### GET /api/pembayaran
+Get semua pembayaran (Admin) atau pembayaran sendiri (Warga).
 
-**GET** `/saldo/:wargaId`
+**Query Parameters:**
+- `status` (optional): pending/verified/rejected
+- `warga_id` (optional): Admin only
 
-**Headers:** Requires Authentication
+### POST /api/pembayaran/:id/verify
+Verifikasi pembayaran (Admin only).
 
-**Response:**
+**Request Body:**
 ```json
 {
-  "saldo": {
-    "wargaId": "uuid",
-    "saldo": 15000,
-    "lastUpdated": "2025-01-10T10:00:00.000Z"
-  }
+  "status": "verified", // "verified" | "rejected"
+  "catatan": "Pembayaran valid, sesuai dengan mutasi rekening"
 }
 ```
 
 ---
 
-## 6. Jadwal Pengangkutan
+## Bank Sampah Endpoints
 
-### 6.1 Get All Jadwal
-
-**GET** `/jadwal`
-
-**Headers:** Requires Authentication
+### GET /api/jenis-sampah
+Get daftar jenis sampah dan harga.
 
 **Response:**
 ```json
 {
-  "jadwal": [
+  "success": true,
+  "data": [
     {
       "id": "uuid",
-      "hari": "Senin",
-      "waktu": "07:00",
-      "jenisSampah": "Organik",
-      "blok": "A",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "nama": "Kardus",
+      "harga_per_kg": 1500,
+      "satuan": "kg",
+      "deskripsi": "Kardus bekas",
+      "is_active": true
     }
   ]
 }
 ```
 
-### 6.2 Create Jadwal
-
-**POST** `/jadwal`
-
-**Headers:** Requires Authentication (Admin only)
+### POST /api/jenis-sampah
+Tambah jenis sampah (Admin only).
 
 **Request Body:**
 ```json
 {
-  "hari": "Senin",
-  "waktu": "07:00",
-  "jenisSampah": "Organik",
-  "blok": "A"
+  "nama": "Kardus",
+  "harga_per_kg": 1500,
+  "satuan": "kg",
+  "deskripsi": "Kardus bekas"
 }
 ```
 
-### 6.3 Update Jadwal
+### PUT /api/jenis-sampah/:id
+Update jenis sampah (Admin only).
 
-**PUT** `/jadwal/:id`
+### DELETE /api/jenis-sampah/:id
+Hapus jenis sampah (Admin only).
 
-**Headers:** Requires Authentication (Admin only)
+### POST /api/setoran-sampah
+Input setoran sampah (Petugas only).
 
-### 6.4 Delete Jadwal
-
-**DELETE** `/jadwal/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
----
-
-## 7. Informasi RT
-
-### 7.1 Get All Informasi
-
-**GET** `/informasi`
-
-**Headers:** Requires Authentication
+**Request Body:**
+```json
+{
+  "warga_id": "uuid",
+  "tanggal_setor": "2025-11-13",
+  "items": [
+    {
+      "jenis_sampah_id": "uuid",
+      "berat": 5.5,
+      "harga_per_kg": 1500
+    },
+    {
+      "jenis_sampah_id": "uuid2",
+      "berat": 3.0,
+      "harga_per_kg": 1000
+    }
+  ],
+  "catatan": "Setoran rutin"
+}
+```
 
 **Response:**
 ```json
 {
-  "informasi": [
-    {
-      "id": "uuid",
-      "judul": "Pengumuman Rapat RT",
-      "konten": "Rapat RT akan dilaksanakan pada...",
-      "kategori": "Pengumuman",
-      "prioritas": "tinggi",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    }
-  ]
-}
-```
-
-### 7.2 Create Informasi
-
-**POST** `/informasi`
-
-**Headers:** Requires Authentication (Admin only)
-
-**Request Body:**
-```json
-{
-  "judul": "Pengumuman Rapat RT",
-  "konten": "Rapat RT akan dilaksanakan pada...",
-  "kategori": "Pengumuman",
-  "prioritas": "tinggi"
-}
-```
-
-### 7.3 Update Informasi
-
-**PUT** `/informasi/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
-### 7.4 Delete Informasi
-
-**DELETE** `/informasi/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
----
-
-## 8. Petugas Management (Admin Only)
-
-### 8.1 Get All Petugas
-
-**GET** `/petugas`
-
-**Headers:** Requires Authentication (Admin only)
-
-### 8.2 Create Petugas
-
-**POST** `/petugas`
-
-**Headers:** Requires Authentication (Admin only)
-
-**Request Body:**
-```json
-{
-  "namaLengkap": "Ahmad Petugas",
-  "email": "ahmad@example.com",
-  "username": "ahmadpetugas",
-  "password": "password123",
-  "noTelepon": "081234567890"
-}
-```
-
-### 8.3 Update Petugas
-
-**PUT** `/petugas/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
-### 8.4 Delete Petugas
-
-**DELETE** `/petugas/:id`
-
-**Headers:** Requires Authentication (Admin only)
-
----
-
-## 9. Dashboard Statistics
-
-### 9.1 Get Dashboard Stats
-
-**GET** `/dashboard/stats`
-
-**Headers:** Requires Authentication
-
-**Response (Admin):**
-```json
-{
-  "stats": {
-    "totalWarga": 50,
-    "totalIuranLunas": 45,
-    "totalIuranBelumBayar": 5,
-    "totalPendapatanIuran": 2250000,
-    "totalSetoranBulanIni": 500000,
-    "periode": "2025-01"
+  "success": true,
+  "message": "Setoran berhasil dicatat",
+  "data": {
+    "id": "uuid",
+    "total_berat": 8.5,
+    "total_nilai": 11250,
+    "saldo_baru": 11250
   }
 }
 ```
+
+### GET /api/setoran-sampah
+Get riwayat setoran (filtered by role).
+
+**Query Parameters:**
+- `warga_id` (optional)
+- `start_date` (optional)
+- `end_date` (optional)
+
+### GET /api/saldo-bank-sampah
+Get saldo bank sampah warga.
 
 **Response (Warga):**
 ```json
 {
-  "stats": {
-    "saldoBankSampah": 15000,
-    "statusIuranBulanIni": "lunas",
-    "jumlahIuranBulanIni": 50000,
-    "totalSetoran": 5,
-    "periode": "2025-01"
+  "success": true,
+  "data": {
+    "saldo": 0,
+    "total_setoran": 0,
+    "total_penarikan": 0
   }
 }
 ```
 
-**Response (Petugas):**
+**Response (Admin - All warga):**
 ```json
 {
-  "stats": {
-    "totalSetoranDiproses": 100,
-    "totalSetoranBulanIni": 25,
-    "totalBeratBulanIni": 125.5,
-    "totalNilaiBulanIni": 375000,
-    "periode": "2025-01"
-  }
+  "success": true,
+  "data": [
+    {
+      "warga_id": "uuid",
+      "nama": "John Doe",
+      "saldo": 0,
+      "total_setoran": 0,
+      "total_penarikan": 0
+    }
+  ],
+  "total_saldo_keseluruhan": 0
+}
+```
+
+### POST /api/penarikan-saldo
+Ajukan penarikan saldo (Warga).
+
+**Request Body:**
+```json
+{
+  "jumlah": 50000,
+  "keperluan": "Bayar Iuran", // "tunai" | "bayar_iuran" | "transfer"
+  "metode": "bayar_iuran",
+  "catatan": "Gunakan untuk bayar iuran November"
+}
+```
+
+### POST /api/penarikan-saldo/:id/approve
+Approve penarikan saldo (Admin only).
+
+**Request Body:**
+```json
+{
+  "status": "approved", // "approved" | "rejected"
+  "catatan": "Disetujui"
 }
 ```
 
 ---
 
-## Error Handling
+## Jadwal & Kegiatan Endpoints
 
-Semua error response memiliki format:
+### GET /api/jadwal-pengangkutan
+Get jadwal pengangkutan sampah.
 
+**Response:**
 ```json
 {
-  "error": "Error message here"
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "hari": "rabu",
+      "waktu_mulai": "07:00",
+      "waktu_selesai": "09:00",
+      "jenis_sampah": "organik",
+      "lokasi": "Area RT 05",
+      "is_active": true
+    }
+  ]
 }
 ```
 
-**Common HTTP Status Codes:**
-- `200`: Success
-- `400`: Bad Request (validasi gagal)
-- `401`: Unauthorized (tidak terautentikasi)
-- `403`: Forbidden (tidak memiliki akses)
-- `404`: Not Found (data tidak ditemukan)
-- `500`: Internal Server Error
+### POST /api/jadwal-pengangkutan
+Tambah jadwal pengangkutan (Admin only).
+
+### GET /api/kegiatan-rt
+Get daftar kegiatan RT.
+
+**Query Parameters:**
+- `status` (optional): dijadwalkan/berlangsung/selesai/dibatalkan
+- `start_date` (optional)
+- `end_date` (optional)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "nama": "Kerja Bakti RT",
+      "deskripsi": "Kerja bakti membersihkan lingkungan",
+      "tanggal": "2025-11-10",
+      "waktu_mulai": "06:00",
+      "waktu_selesai": "08:00",
+      "lokasi": "Area RT 05",
+      "kategori": "wajib",
+      "peserta_target": "semua_warga",
+      "status": "dijadwalkan"
+    }
+  ]
+}
+```
+
+### POST /api/kegiatan-rt
+Tambah kegiatan RT (Admin only).
 
 ---
 
-## Data Structure
+## Informasi RT Endpoints
 
-### User Roles
-- `warga`: Warga RT
-- `admin`: Admin/Pengurus RT
-- `petugas`: Petugas Bank Sampah
+### GET /api/pengumuman
+Get pengumuman RT.
 
-### Status Iuran
-- `belum_bayar`: Belum dibayar
-- `lunas`: Sudah lunas
-- `terlambat`: Terlambat bayar
+**Query Parameters:**
+- `kategori` (optional): umum/kegiatan/iuran/bank_sampah/penting
+- `is_pinned` (optional): true/false
 
-### Metode Pembayaran
-- `QRIS`
-- `Transfer Bank`
-- `Tunai`
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "judul": "Kerja Bakti Minggu Ini",
+      "isi": "Kerja bakti akan diadakan...",
+      "kategori": "kegiatan",
+      "prioritas": "tinggi",
+      "is_pinned": true,
+      "tanggal_publikasi": "2025-11-05T00:00:00Z",
+      "created_by_nama": "Admin RT"
+    }
+  ]
+}
+```
 
-### Kategori Sampah
-- `Plastik`
-- `Kertas`
-- `Logam`
-- `Kaca`
-- `Elektronik`
-- `Lainnya`
+### POST /api/pengumuman
+Buat pengumuman (Admin only).
 
-### Prioritas Informasi
-- `tinggi`: Prioritas tinggi
-- `normal`: Prioritas normal
-- `rendah`: Prioritas rendah
+**Request Body:**
+```json
+{
+  "judul": "Kerja Bakti Minggu Ini",
+  "isi": "Kerja bakti akan diadakan pada hari Minggu...",
+  "kategori": "kegiatan",
+  "prioritas": "tinggi",
+  "is_pinned": true,
+  "tanggal_kadaluarsa": "2025-11-10"
+}
+```
+
+### GET /api/kontak-pengurus
+Get kontak pengurus RT.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "jabatan": "Ketua RT",
+      "nama": "Pak Bambang",
+      "telepon": "08123456789",
+      "email": "ketua@rt05.com",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### POST /api/kontak-pengurus
+Tambah kontak pengurus (Admin only).
+
+### GET /api/peraturan-rt
+Get peraturan RT.
+
+### POST /api/peraturan-rt
+Tambah peraturan RT (Admin only).
+
+### GET /api/informasi-rt
+Get informasi umum RT.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "nama_rt": "RT 05",
+    "nama_rw": "RW 02",
+    "kelurahan": "Mekar Sari",
+    "kecamatan": "Kecamatan Contoh",
+    "kota": "Kota Contoh",
+    "ketua_rt": "Pak Bambang",
+    "periode_mulai": 2023,
+    "periode_selesai": 2026,
+    "jumlah_kk": 0,
+    "jumlah_jiwa": 0,
+    "logo_url": null
+  }
+}
+```
+
+### PUT /api/informasi-rt
+Update informasi RT (Admin only).
+
+---
+
+## Petugas Endpoints
+
+### GET /api/petugas
+Get daftar petugas bank sampah (Admin only).
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "nama": "Petugas 1",
+      "email": "petugas@rt05.com",
+      "telepon": "08123456789",
+      "shift": "pagi",
+      "wilayah_tanggungan": ["A", "B"],
+      "is_active": true
+    }
+  ]
+}
+```
+
+### POST /api/petugas
+Tambah petugas bank sampah (Admin only).
+
+**Request Body:**
+```json
+{
+  "nama": "Petugas 1",
+  "email": "petugas@rt05.com",
+  "password": "password123",
+  "telepon": "08123456789",
+  "shift": "pagi",
+  "wilayah_tanggungan": ["A", "B"]
+}
+```
+
+---
+
+## Laporan Endpoints
+
+### GET /api/laporan/iuran
+Get laporan iuran (Admin only).
+
+**Query Parameters:**
+- `bulan` (required)
+- `tahun` (required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "periode": "November 2025",
+    "total_warga": 0,
+    "total_tagihan": 0,
+    "total_lunas": 0,
+    "total_belum_lunas": 0,
+    "persentase_lunas": 0,
+    "total_pendapatan": 0,
+    "total_denda": 0,
+    "detail": []
+  }
+}
+```
+
+### GET /api/laporan/bank-sampah
+Get laporan bank sampah (Admin only).
+
+**Query Parameters:**
+- `start_date` (required)
+- `end_date` (required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "periode": "1 Nov - 13 Nov 2025",
+    "total_setoran": 0,
+    "total_penarikan": 0,
+    "total_saldo": 0,
+    "total_transaksi": 0,
+    "jenis_sampah_terbanyak": [],
+    "warga_teraktif": [],
+    "detail": []
+  }
+}
+```
+
+### GET /api/laporan/keuangan
+Get laporan keuangan lengkap (Admin only).
+
+**Query Parameters:**
+- `start_date` (required)
+- `end_date` (required)
+
+---
+
+## Dashboard Endpoints
+
+### GET /api/dashboard/admin
+Get dashboard data untuk admin.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_warga": 0,
+    "total_warga_aktif": 0,
+    "iuran_bulan_ini": {
+      "total_tagihan": 0,
+      "total_lunas": 0,
+      "total_belum_lunas": 0,
+      "persentase_lunas": 0,
+      "total_pendapatan": 0
+    },
+    "bank_sampah": {
+      "total_saldo": 0,
+      "total_setoran_bulan_ini": 0,
+      "total_transaksi_bulan_ini": 0
+    },
+    "aktivitas_terbaru": [],
+    "chart_data": {
+      "iuran_6_bulan": []
+    }
+  }
+}
+```
+
+### GET /api/dashboard/warga
+Get dashboard data untuk warga.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "iuran_bulan_ini": {
+      "id": null,
+      "bulan": 11,
+      "tahun": 2025,
+      "nominal": 0,
+      "status": null,
+      "tanggal_jatuh_tempo": null
+    },
+    "saldo_bank_sampah": {
+      "saldo": 0,
+      "total_setoran": 0,
+      "total_penarikan": 0
+    },
+    "jadwal_terdekat": [],
+    "pengumuman_terbaru": []
+  }
+}
+```
+
+### GET /api/dashboard/petugas
+Get dashboard data untuk petugas.
+
+---
+
+## Error Responses
+
+### 400 Bad Request
+```json
+{
+  "success": false,
+  "error": "Validation error",
+  "details": {
+    "field": "email",
+    "message": "Email tidak valid"
+  }
+}
+```
+
+### 401 Unauthorized
+```json
+{
+  "success": false,
+  "error": "Unauthorized",
+  "message": "Token tidak valid atau sudah kadaluarsa"
+}
+```
+
+### 403 Forbidden
+```json
+{
+  "success": false,
+  "error": "Forbidden",
+  "message": "Anda tidak memiliki akses ke resource ini"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "success": false,
+  "error": "Not Found",
+  "message": "Resource tidak ditemukan"
+}
+```
+
+### 500 Internal Server Error
+```json
+{
+  "success": false,
+  "error": "Internal Server Error",
+  "message": "Terjadi kesalahan pada server"
+}
+```
 
 ---
 
 ## Notes
 
-1. **Authentication**: Semua endpoint kecuali `/auth/register` dan `/auth/login` memerlukan autentikasi
-2. **Authorization**: Endpoint dengan label "Admin only" atau "Petugas only" hanya bisa diakses oleh role tersebut
-3. **Periode Format**: Periode iuran menggunakan format `YYYY-MM` (contoh: "2025-01")
-4. **Auto-confirm Email**: Karena belum ada email server, semua registrasi otomatis dikonfirmasi
-5. **Data Persistence**: Data disimpan di KV Store Supabase
+- **Semua endpoint menggunakan JSON** untuk request dan response
+- **Tanggal format**: ISO 8601 (YYYY-MM-DDTHH:mm:ssZ)
+- **Pagination**: Default limit = 50, bisa diatur via query parameter
+- **File upload**: Menggunakan Supabase Storage, return URL
+- **Pembayaran**: Hanya **Transfer BRI**, tidak ada metode lain
+
+## Metode Pembayaran - Bank BRI Only
+
+### Flow Pembayaran Iuran
+
+1. **Warga melihat tagihan** via `GET /api/iuran`
+2. **Warga klik bayar** - sistem return info rekening BRI RT
+3. **Warga transfer** via BRI Mobile/ATM/Internet Banking
+4. **Warga konfirmasi** via `POST /api/pembayaran` dengan nomor referensi
+5. **Admin verifikasi** via `POST /api/pembayaran/:id/verify`
+6. **Status berubah** menjadi "Lunas"
+
+### Informasi Rekening BRI
+
+Rekening BRI RT didapat dari data admin yang diinput saat registrasi:
+- Nomor Rekening BRI
+- Nama Pemilik Rekening
+- Bank: BRI
+
+---
+
+**API Documentation v1.0.0** - Sistem Informasi Warga RT

@@ -33,6 +33,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     nomorRumah: "",
     blok: "",
     noTelepon: "",
+    // Admin specific
+    jabatan: "",
+    nomorRekeningBRI: "",
+    namaPemilikRekening: "",
   });
 
   const roles = [
@@ -116,6 +120,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       nomorRumah: "",
       blok: "",
       noTelepon: "",
+      // Admin specific
+      jabatan: "",
+      nomorRekeningBRI: "",
+      namaPemilikRekening: "",
     });
   };
 
@@ -132,6 +140,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       nomorRumah: "",
       blok: "",
       noTelepon: "",
+      // Admin specific
+      jabatan: "",
+      nomorRekeningBRI: "",
+      namaPemilikRekening: "",
     });
   };
 
@@ -390,6 +402,50 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                       </>
                     )}
 
+                    {/* Admin specific fields */}
+                    {selectedRole === "admin" && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="jabatan">Jabatan</Label>
+                          <Input
+                            id="jabatan"
+                            type="text"
+                            placeholder="Masukkan jabatan"
+                            value={registerData.jabatan}
+                            onChange={(e) => setRegisterData({ ...registerData, jabatan: e.target.value })}
+                            required
+                            className="h-12"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="nomorRekeningBRI">Nomor Rekening BRI</Label>
+                          <Input
+                            id="nomorRekeningBRI"
+                            type="text"
+                            placeholder="Masukkan nomor rekening BRI"
+                            value={registerData.nomorRekeningBRI}
+                            onChange={(e) => setRegisterData({ ...registerData, nomorRekeningBRI: e.target.value })}
+                            required
+                            className="h-12"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="namaPemilikRekening">Nama Pemilik Rekening</Label>
+                          <Input
+                            id="namaPemilikRekening"
+                            type="text"
+                            placeholder="Masukkan nama pemilik rekening"
+                            value={registerData.namaPemilikRekening}
+                            onChange={(e) => setRegisterData({ ...registerData, namaPemilikRekening: e.target.value })}
+                            required
+                            className="h-12"
+                          />
+                        </div>
+                      </>
+                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor="reg-username">Username</Label>
                       <Input
@@ -488,33 +544,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                       </p>
                     </div>
                   </form>
-                )}
-
-                {/* Demo Credentials - Only show in login mode */}
-                {!isRegisterMode && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 mb-2">Demo Credentials:</p>
-                    <div className="space-y-1 text-xs text-gray-700">
-                      {selectedRole === "warga" && (
-                        <>
-                          <p>Username: <span className="font-medium">warga123</span></p>
-                          <p>Password: <span className="font-medium">password</span></p>
-                        </>
-                      )}
-                      {selectedRole === "admin" && (
-                        <>
-                          <p>Username: <span className="font-medium">admin</span></p>
-                          <p>Password: <span className="font-medium">admin123</span></p>
-                        </>
-                      )}
-                      {selectedRole === "petugas" && (
-                        <>
-                          <p>Username: <span className="font-medium">petugas</span></p>
-                          <p>Password: <span className="font-medium">petugas123</span></p>
-                        </>
-                      )}
-                    </div>
-                  </div>
                 )}
               </CardContent>
             </Card>

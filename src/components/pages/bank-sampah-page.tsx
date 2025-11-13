@@ -1,33 +1,17 @@
-import { Coins, TrendingUp, Recycle, ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
+import { Coins, TrendingUp, Recycle, ArrowUpRight, ArrowDownRight, Inbox } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export function BankSampahPage() {
-  const saldo = 15000;
-  const totalSetoran = 125000;
-  const totalPenarikan = 110000;
+  // Data akan diambil dari API - saat ini kosong
+  const saldo = 0;
+  const totalSetoran = 0;
+  const totalPenarikan = 0;
 
-  const riwayatSetoran = [
-    { id: 1, tanggal: "5 Nov 2025", jenis: "Plastik", berat: "5 kg", nilai: 15000, status: "selesai" },
-    { id: 2, tanggal: "29 Okt 2025", jenis: "Kertas", berat: "8 kg", nilai: 20000, status: "selesai" },
-    { id: 3, tanggal: "22 Okt 2025", jenis: "Botol Kaca", berat: "3 kg", nilai: 12000, status: "selesai" },
-    { id: 4, tanggal: "15 Okt 2025", jenis: "Kardus", berat: "10 kg", nilai: 25000, status: "selesai" },
-  ];
-
-  const riwayatPenarikan = [
-    { id: 1, tanggal: "1 Nov 2025", keperluan: "Bayar Iuran RT", nilai: 25000, status: "selesai" },
-    { id: 2, tanggal: "1 Okt 2025", keperluan: "Bayar Iuran RT", nilai: 25000, status: "selesai" },
-    { id: 3, tanggal: "20 Sep 2025", keperluan: "Transfer ke Rekening", nilai: 50000, status: "selesai" },
-  ];
-
-  const hargaSampah = [
-    { jenis: "Plastik (PET)", harga: "Rp 3.000/kg", icon: "♻️" },
-    { jenis: "Kertas/Kardus", harga: "Rp 2.500/kg", icon: "📦" },
-    { jenis: "Botol Kaca", harga: "Rp 4.000/kg", icon: "🍾" },
-    { jenis: "Kaleng/Logam", harga: "Rp 5.000/kg", icon: "🥫" },
-  ];
+  const riwayatSetoran: any[] = [];
+  const riwayatPenarikan: any[] = [];
+  const hargaSampah: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -47,20 +31,16 @@ export function BankSampahPage() {
               <div className="flex items-center gap-4 text-sm opacity-90">
                 <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4" />
-                  <span>8 kali setoran</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  <span>+20% bulan ini</span>
+                  <span>{riwayatSetoran.length} kali setoran</span>
                 </div>
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Button className="bg-white text-green-600 hover:bg-gray-100">
+              <Button className="bg-white text-green-600 hover:bg-gray-100" disabled>
                 <Recycle className="w-4 h-4 mr-2" />
                 Setor Sampah
               </Button>
-              <Button variant="outline" className="border-white text-white hover:bg-white/20">
+              <Button variant="outline" className="border-white text-white hover:bg-white/20" disabled>
                 <ArrowDownRight className="w-4 h-4 mr-2" />
                 Tarik Saldo
               </Button>
@@ -77,7 +57,7 @@ export function BankSampahPage() {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Setoran</p>
                 <p className="text-2xl text-gray-900">Rp {totalSetoran.toLocaleString("id-ID")}</p>
-                <p className="text-sm text-green-600 mt-1">↑ 15% dari bulan lalu</p>
+                <p className="text-sm text-gray-600 mt-1">Belum ada setoran</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                 <ArrowUpRight className="w-6 h-6 text-green-600" />
@@ -92,7 +72,7 @@ export function BankSampahPage() {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Penarikan</p>
                 <p className="text-2xl text-gray-900">Rp {totalPenarikan.toLocaleString("id-ID")}</p>
-                <p className="text-sm text-gray-600 mt-1">3 transaksi</p>
+                <p className="text-sm text-gray-600 mt-1">0 transaksi</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <ArrowDownRight className="w-6 h-6 text-blue-600" />
@@ -102,95 +82,83 @@ export function BankSampahPage() {
         </Card>
       </div>
 
-      {/* Harga Sampah */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daftar Harga Sampah</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {hargaSampah.map((item, index) => (
-              <div
-                key={index}
-                className="p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
-              >
-                <div className="text-2xl mb-2">{item.icon}</div>
-                <p className="text-gray-900 mb-1">{item.jenis}</p>
-                <p className="text-sm text-green-600">{item.harga}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Riwayat Tabs */}
+      {/* Tabs */}
       <Card>
         <CardHeader>
           <CardTitle>Riwayat Transaksi</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="setoran">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
+          <Tabs defaultValue="setoran" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="setoran">Setoran</TabsTrigger>
               <TabsTrigger value="penarikan">Penarikan</TabsTrigger>
+              <TabsTrigger value="harga">Harga Sampah</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="setoran" className="space-y-3">
-              {riwayatSetoran.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <ArrowUpRight className="w-5 h-5 text-green-600" />
+            
+            <TabsContent value="setoran" className="space-y-4">
+              {riwayatSetoran.length > 0 ? (
+                <div className="space-y-3">
+                  {riwayatSetoran.map((item) => (
+                    <div key={item.id} className="p-4 border border-gray-200 rounded-lg">
+                      <p className="text-sm text-gray-900">{item.jenis}</p>
+                      <p className="text-xs text-gray-500">{item.tanggal}</p>
                     </div>
-                    <div>
-                      <p className="text-gray-900 mb-1">{item.jenis}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="w-3 h-3" />
-                        <span>{item.tanggal}</span>
-                        <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                        <span>{item.berat}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-green-600">+Rp {item.nilai.toLocaleString("id-ID")}</p>
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      {item.status}
-                    </Badge>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="py-12 text-center">
+                  <Inbox className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-gray-900 mb-2">Belum Ada Riwayat Setoran</h3>
+                  <p className="text-gray-600 text-sm max-w-md mx-auto">
+                    Setoran sampah diinput oleh petugas bank sampah. Hubungi petugas untuk jadwal penjemputan sampah Anda.
+                  </p>
+                </div>
+              )}
             </TabsContent>
-
-            <TabsContent value="penarikan" className="space-y-3">
-              {riwayatPenarikan.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <ArrowDownRight className="w-5 h-5 text-blue-600" />
+            
+            <TabsContent value="penarikan" className="space-y-4">
+              {riwayatPenarikan.length > 0 ? (
+                <div className="space-y-3">
+                  {riwayatPenarikan.map((item) => (
+                    <div key={item.id} className="p-4 border border-gray-200 rounded-lg">
+                      <p className="text-sm text-gray-900">{item.keperluan}</p>
+                      <p className="text-xs text-gray-500">{item.tanggal}</p>
                     </div>
-                    <div>
-                      <p className="text-gray-900 mb-1">{item.keperluan}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="w-3 h-3" />
-                        <span>{item.tanggal}</span>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-12 text-center">
+                  <Inbox className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-gray-900 mb-2">Belum Ada Riwayat Penarikan</h3>
+                  <p className="text-gray-600 text-sm max-w-md mx-auto">
+                    Riwayat penarikan saldo Anda akan muncul di sini.
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="harga" className="space-y-4">
+              {hargaSampah.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {hargaSampah.map((item, index) => (
+                    <div key={index} className="p-4 border border-gray-200 rounded-lg flex items-center gap-4">
+                      <span className="text-3xl">{item.icon}</span>
+                      <div>
+                        <p className="text-sm text-gray-900">{item.jenis}</p>
+                        <p className="text-xs text-gray-600">{item.harga}</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-red-600">-Rp {item.nilai.toLocaleString("id-ID")}</p>
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      {item.status}
-                    </Badge>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="py-12 text-center">
+                  <Inbox className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-gray-900 mb-2">Belum Ada Daftar Harga</h3>
+                  <p className="text-gray-600 text-sm max-w-md mx-auto">
+                    Daftar harga sampah akan diisi oleh admin. Silakan hubungi admin atau petugas bank sampah untuk informasi harga.
+                  </p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
